@@ -1,6 +1,6 @@
 ---
 id: 001-T03
-status: todo           # todo | doing | blocked | done
+status: done           # todo | doing | blocked | done
 depends_on: [001-T02]
 covers: [AC-3, AC-4, AC-5, AC-6, AC-7]
 ---
@@ -27,16 +27,16 @@ export class LoggingModule { static forRoot(config: AppConfig, stream?: Destinat
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/infrastructure/logging/correlation-id.ts`, `pino-http-options.ts`, `logging.module.ts` (nuevos) + specs
-- [ ] `test/support/log-capture.ts` (nuevo, copiado)
-- [ ] `package.json` (`pnpm add nestjs-pino pino pino-http`, versiones de traccar-adapter)
+- [x] `src/shared/infrastructure/logging/correlation-id.ts`, `pino-http-options.ts`, `logging.module.ts` (nuevos) + specs
+- [x] `test/support/log-capture.ts` (nuevo, copiado)
+- [x] `package.json` (`pnpm add nestjs-pino pino pino-http`, versiones de traccar-adapter)
 
 ## Criterios de aceptación
-- [ ] **AC-3** — Cada línea tiene `time` ISO, `level` etiqueta, `service:"core-service"`, `context`, `msg`.
-- [ ] **AC-4** — Header válido se respeta; ausente/inválido → UUID v4.
-- [ ] **AC-5** — Niveles del log de request: `debug` `/health*`, `error` 5xx, `warn` 4xx, `info` resto.
-- [ ] **AC-6** — `authorization` y `cookie` redactados (no aparecen).
-- [ ] **AC-7** — Respeta `LOG_LEVEL`.
+- [x] **AC-3** — Cada línea tiene `time` ISO, `level` etiqueta, `service:"core-service"`, `context`, `msg`.
+- [x] **AC-4** — Header válido se respeta; ausente/inválido → UUID v4.
+- [x] **AC-5** — Niveles del log de request: `debug` `/health*`, `error` 5xx, `warn` 4xx, `info` resto.
+- [x] **AC-6** — `authorization` y `cookie` redactados (no aparecen).
+- [x] **AC-7** — Respeta `LOG_LEVEL`.
 
 ## Notas
 En `pino-http-options.ts` quitar `customProps.actor` (el actor llega en 003) y cualquier referencia a webhooks.
@@ -50,3 +50,4 @@ pnpm check
 ```
 
 ## Handoff
+LoggingModule configurado con nestjs-pino y pino-http con correlation id, redactado de cabeceras sensibles y formato estructurado JSON con service: "core-service". Listo para ser importado en AppModule (T06) y utilizado por el exception filter (T04).
