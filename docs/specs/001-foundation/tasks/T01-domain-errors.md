@@ -1,6 +1,6 @@
 ---
 id: 001-T01
-status: todo           # todo | doing | blocked | done
+status: done           # todo | doing | blocked | done
 depends_on: []
 covers: [AC-8]
 ---
@@ -26,11 +26,11 @@ export function codeForHttpStatus(status: number): string;          // 4xx sin m
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/domain/domain-error.ts`, `validation.error.ts`, `upstream-unavailable.error.ts` (nuevos)
-- [ ] `src/shared/infrastructure/http/error-http-status.ts` (nuevo) + `.spec.ts`
+- [x] `src/shared/domain/domain-error.ts`, `validation.error.ts`, `upstream-unavailable.error.ts` (nuevos)
+- [x] `src/shared/infrastructure/http/error-http-status.ts` (nuevo) + `.spec.ts`
 
 ## Criterios de aceptación
-- [ ] **AC-8** — `httpStatusForCode` devuelve el status de cada código genérico y `undefined` para uno desconocido o heredado (`constructor`); `codeForHttpStatus` es el inverso.
+- [x] **AC-8** — `httpStatusForCode` devuelve el status de cada código genérico y `undefined` para uno desconocido o heredado (`constructor`); `codeForHttpStatus` es el inverso.
 
 ## Fuera de alcance
 - El exception filter (T04).
@@ -41,3 +41,4 @@ pnpm check
 ```
 
 ## Handoff
+Portados DomainError, ValidationError, UpstreamUnavailableError y la tabla bidireccional código ↔ status HTTP de PADR-001 sin dependencias externas ni acoplamientos de Traccar. Listo para ser consumido por T04 (exception filter global).
