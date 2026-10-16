@@ -7,7 +7,7 @@ spec: 001
 | Task | Título | Depende de | Estado |
 |------|--------|-----------|--------|
 | T01 | Errores de dominio y tabla código ↔ status | — | done |
-| T02 | Configuración por entorno validada con zod | — | todo |
+| T02 | Configuración por entorno validada con zod | — | done |
 | T03 | Logging estructurado con correlation id (nestjs-pino) | T02 | todo |
 | T04 | Exception filter global y pipe de validación zod | T01, T03 | todo |
 | T05 | GET /health y GET /health/ready con registro de checks | — | todo |
