@@ -1,0 +1,284 @@
+import {
+  Body,
+  ConflictException,
+  Controller,
+  Get,
+  type INestApplication,
+  MethodNotAllowedException,
+  Post,
+} from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { Test } from '@nestjs/testing';
+import { Logger } from 'nestjs-pino';
+import request from 'supertest';
+import { z } from 'zod';
+import { DomainError } from '../../domain/domain-error.js';
+import { UpstreamUnavailableError } from '../../domain/upstream-unavailable.error.js';
+import { ValidationError } from '../../domain/validation.error.js';
+import { LoggingModule } from '../logging/logging.module.js';
+import {
+  createLogCapture,
+  type LogCapture,
+} from '../../../../test/support/log-capture.js';
+import { HttpExceptionFilter } from './http-exception.filter.js';
+import { ZodValidationPipe } from './zod-validation.pipe.js';
+
+class TestDomainError extends DomainError {
+  readonly code: string;
+
+  constructor(code: string, message: string) {
+    super(message);
+    this.code = code;
+  }
+}
+
+const createItemSchema = z.object({ name: z.string().min(1) }).strict();
+
+@Controller()
+class TestController {
+  @Get('domain-conflict')
+  domainConflict() {
+    throw new TestDomainError('CONFLICT', 'Group exists');
+  }
+
+  @Get('unhandled-error')
+  unhandledError() {
+    throw new Error('db password=x');
+  }
+
+  @Get('unmapped-domain-error')
+  unmappedDomainError() {
+    throw new TestDomainError(
+      'NOT_REGISTERED_CODE',
+      'Some unmapped domain error',
+    );
+  }
+
+  @Get('nest-conflict')
+  nestConflict() {
+    throw new ConflictException('Nest conflict detail');
+  }
+
+  @Get('validation-error')
+  validationError() {
+    throw new ValidationError([{ path: 'name', message: 'Required' }]);
+  }
+
+  @Post('validated-body')
+  validatedBody(
+    @Body(new ZodValidationPipe(createItemSchema)) body: { name: string },
+  ) {
+    return body;
+  }
+
+  @Get('upstream-unavailable')
+  upstreamUnavailable() {
+    throw new UpstreamUnavailableError('traccar');
+  }
+
+  @Get('method-not-allowed')
+  methodNotAllowed() {
+    throw new MethodNotAllowedException();
+  }
+}
+
+async function resetLoggerState(): Promise<void> {
+  const url = new URL('./rootLogger.js', import.meta.resolve('nestjs-pino'));
+  const { resetRootLogger } = (await import(url.href)) as {
+    resetRootLogger: () => void;
+  };
+  resetRootLogger();
+}
+
+describe('HttpExceptionFilter (integration)', () => {
+  let app: INestApplication;
+  let logs: LogCapture;
+
+  beforeEach(async () => {
+    await resetLoggerState();
+    logs = createLogCapture();
+
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        LoggingModule.forRoot({ port: 0, logLevel: 'debug' }, logs.stream),
+      ],
+      controllers: [TestController],
+      providers: [
+        {
+          provide: APP_FILTER,
+          useClass: HttpExceptionFilter,
+        },
+      ],
+    }).compile();
+
+    app = moduleRef.createNestApplication({ bufferLogs: true });
+    app.useLogger(app.get(Logger));
+    await app.init();
+  });
+
+  afterEach(async () => {
+    if (app) {
+      await app.close();
+    }
+    await resetLoggerState();
+  });
+
+  it('AC-8: maps DomainError with CONFLICT code to 409 and preserves original message', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/domain-conflict')
+      .set('x-correlation-id', 'cid-1')
+      .expect(409);
+
+    expect(res.body).toEqual({
+      code: 'CONFLICT',
+      message: 'Group exists',
+      correlationId: 'cid-1',
+    });
+  });
+
+  it('AC-8: maps ValidationError to 400 with details', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/validation-error')
+      .set('x-correlation-id', 'cid-1')
+      .expect(400);
+
+    expect(res.body).toEqual({
+      code: 'VALIDATION_ERROR',
+      message: 'Validation failed',
+      correlationId: 'cid-1',
+      details: [{ path: 'name', message: 'Required' }],
+    });
+  });
+
+  it('AC-8: DomainError without details omits the details key', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/upstream-unavailable')
+      .set('x-correlation-id', 'cid-1')
+      .expect(503);
+
+    expect(res.body).toEqual({
+      code: 'UPSTREAM_UNAVAILABLE',
+      message: 'traccar is unavailable',
+      correlationId: 'cid-1',
+    });
+    expect(res.body).not.toHaveProperty('details');
+  });
+
+  it('AC-9: maps unhandled generic Error to 500 INTERNAL_ERROR without leaking secrets or stack', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/unhandled-error')
+      .set('x-correlation-id', 'cid-1')
+      .expect(500);
+
+    expect(res.body).toEqual({
+      code: 'INTERNAL_ERROR',
+      message: 'Internal server error',
+      correlationId: 'cid-1',
+    });
+
+    const bodyStr = JSON.stringify(res.body);
+    expect(bodyStr).not.toContain('password');
+    expect(bodyStr).not.toContain('stack');
+  });
+
+  it('AC-9: unhandled generic Error logs an error line with correlationId and err containing original message', async () => {
+    await request(app.getHttpServer())
+      .get('/unhandled-error')
+      .set('x-correlation-id', 'cid-1')
+      .expect(500);
+
+    await vi.waitFor(() => {
+      const errorLines = logs
+        .lines()
+        .filter((l) => l.level === 'error' && l.correlationId === 'cid-1');
+      expect(errorLines.length).toBeGreaterThan(0);
+      const hasOriginalMessage = errorLines.some(
+        (l) =>
+          JSON.stringify(l.err).includes('db password=x') ||
+          String(l.msg).includes('db password=x'),
+      );
+      expect(hasOriginalMessage).toBe(true);
+    });
+  });
+
+  it('AC-9: maps unmapped DomainError to 500 INTERNAL_ERROR and logs error with msg Unmapped domain error code', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/unmapped-domain-error')
+      .set('x-correlation-id', 'cid-1')
+      .expect(500);
+
+    expect(res.body).toEqual({
+      code: 'INTERNAL_ERROR',
+      message: 'Internal server error',
+      correlationId: 'cid-1',
+    });
+
+    await vi.waitFor(() => {
+      const errorLines = logs
+        .lines()
+        .filter(
+          (l) =>
+            l.level === 'error' &&
+            l.correlationId === 'cid-1' &&
+            l.msg === 'Unmapped domain error code',
+        );
+      expect(errorLines.length).toBeGreaterThan(0);
+      expect(errorLines[0]?.code).toBe('NOT_REGISTERED_CODE');
+    });
+  });
+
+  it('AC-10: maps unknown route to 404 NOT_FOUND, ConflictException to 409 CONFLICT, and 405 to BAD_REQUEST', async () => {
+    const res404 = await request(app.getHttpServer())
+      .get('/no-existe')
+      .set('x-correlation-id', 'cid-1')
+      .expect(404);
+
+    expect(res404.body).toEqual({
+      code: 'NOT_FOUND',
+      message: 'Resource not found',
+      correlationId: 'cid-1',
+    });
+
+    const resConflict = await request(app.getHttpServer())
+      .get('/nest-conflict')
+      .set('x-correlation-id', 'cid-1')
+      .expect(409);
+
+    expect(resConflict.body).toEqual({
+      code: 'CONFLICT',
+      message: 'Conflict',
+      correlationId: 'cid-1',
+    });
+
+    const res405 = await request(app.getHttpServer())
+      .get('/method-not-allowed')
+      .set('x-correlation-id', 'cid-1')
+      .expect(405);
+
+    expect(res405.body).toEqual({
+      code: 'BAD_REQUEST',
+      message: 'Bad request',
+      correlationId: 'cid-1',
+    });
+  });
+
+  it('AC-11: invalid zod schema in pipe responds with 400 VALIDATION_ERROR and details', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/validated-body')
+      .set('x-correlation-id', 'cid-1')
+      .send({ name: '' })
+      .expect(400);
+
+    expect(res.body).toEqual({
+      code: 'VALIDATION_ERROR',
+      message: 'Validation failed',
+      correlationId: 'cid-1',
+      details: [
+        {
+          path: 'name',
+          message: expect.any(String) as unknown as string,
+        },
+      ],
+    });
+  });
+});
