@@ -1,6 +1,6 @@
 ---
 id: 001-foundation
-status: draft          # draft | approved | in-progress | done
+status: in-progress    # draft | approved | in-progress | done
 requirements: [FND-FR1, FND-FR2, FND-NFR4]
 adrs: [0001, PADR-001]
 ---
