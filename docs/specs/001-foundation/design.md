@@ -1,6 +1,6 @@
 ---
 spec: 001-foundation
-status: draft          # draft | approved
+status: approved       # draft | approved
 ---
 
 # 001 — Diseño

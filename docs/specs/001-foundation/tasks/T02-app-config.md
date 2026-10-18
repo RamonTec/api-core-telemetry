@@ -1,6 +1,6 @@
 ---
 id: 001-T02
-status: todo           # todo | doing | blocked | done
+status: done           # todo | doing | blocked | done
 depends_on: []
 covers: [AC-1, AC-2, AC-7]
 ---
@@ -26,13 +26,13 @@ export function loadConfig(env: Record<string, string | undefined>): AppConfig;
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/infrastructure/config/app-config.ts` (nuevo) + `.spec.ts`
-- [ ] `package.json` (`pnpm add zod@^4`)
+- [x] `src/shared/infrastructure/config/app-config.ts` (nuevo) + `.spec.ts`
+- [x] `package.json` (`pnpm add zod@^4`)
 
 ## Criterios de aceptación
-- [ ] **AC-1** — Env vacío → `{ port: 3000, logLevel: "info" }`.
-- [ ] **AC-2** — `PORT=abc LOG_LEVEL=verbose` → `ConfigValidationError` con `invalidVariables` = `["PORT","LOG_LEVEL"]` (sin valores en el mensaje).
-- [ ] **AC-7** — `LOG_LEVEL` solo acepta `debug|info|warn|error`.
+- [x] **AC-1** — Env vacío → `{ port: 3000, logLevel: "info" }`.
+- [x] **AC-2** — `PORT=abc LOG_LEVEL=verbose` → `ConfigValidationError` con `invalidVariables` = `["PORT","LOG_LEVEL"]` (sin valores en el mensaje).
+- [x] **AC-7** — `LOG_LEVEL` solo acepta `debug|info|warn|error`.
 
 ## Notas
 Portar solo `PORT` y `LOG_LEVEL`: las secciones `auth`, `traccar`, `webhook`, `nats`, `outbox` del original no existen aquí (auth llega en 003, BD en 004).
@@ -46,3 +46,4 @@ pnpm check
 ```
 
 ## Handoff
+Implementado parseEnv y loadConfig validando PORT y LOG_LEVEL con zod. ConfigValidationError reporta variables inválidas sin filtrar valores. Disponible APP_CONFIG token para inyección de dependencias en T03 y T06.
