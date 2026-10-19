@@ -1,6 +1,6 @@
 ---
 id: 003-T03
-status: todo           # todo | doing | blocked | done
+status: done            # todo | doing | blocked | done
 depends_on: [003-T01, 003-T02]
 covers: [AC-2, AC-3]
 ---
@@ -27,13 +27,13 @@ export class JwtVerifier { constructor(config: AuthConfig, getKey?: JWTVerifyGet
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/infrastructure/auth/jwt-verifier.ts` (nuevo, portado) + spec
-- [ ] `package.json` (`pnpm add jose`, versión de traccar-adapter)
+- [x] `src/shared/infrastructure/auth/jwt-verifier.ts` (nuevo, portado) + spec
+- [x] `package.json` (`pnpm add jose`, versión de traccar-adapter)
 
 ## Criterios de aceptación
-- [ ] **AC-2** — Tests con claves generadas por `jose` (`generateKeyPair("RS256")`, `createLocalJWKSet`): firma de otra clave → `SIGNATURE`; expirado → `EXPIRED`; `iss`/`aud` distintos → `CLAIMS`; HS256 → `ALGORITHM`; basura → `MALFORMED`.
-- [ ] **AC-3** — `getKey` que falla por red → `JWKS_UNAVAILABLE`.
-- [ ] Token válido → `VerifiedClaims` con `sub`, `tenantId`, `clientRoles`, `realmRoles`.
+- [x] **AC-2** — Tests con claves generadas por `jose` (`generateKeyPair("RS256")`, `createLocalJWKSet`): firma de otra clave → `SIGNATURE`; expirado → `EXPIRED`; `iss`/`aud` distintos → `CLAIMS`; HS256 → `ALGORITHM`; basura → `MALFORMED`.
+- [x] **AC-3** — `getKey` que falla por red → `JWKS_UNAVAILABLE`.
+- [x] Token válido → `VerifiedClaims` con `sub`, `tenantId`, `clientRoles`, `realmRoles`.
 
 ## Fuera de alcance
 - —
@@ -44,3 +44,5 @@ pnpm check
 ```
 
 ## Handoff
+Implementado `JwtVerifier` con `jose` verificando tokens RS256 contra JWKS (remoto con caché/cooldown o inyectado para tests).
+Clasifica errores en `InvalidTokenError` (`MALFORMED`, `SIGNATURE`, `EXPIRED`, `CLAIMS`, `ALGORITHM`, `JWKS_UNAVAILABLE`) y extrae `VerifiedClaims`. Desbloquea T04.

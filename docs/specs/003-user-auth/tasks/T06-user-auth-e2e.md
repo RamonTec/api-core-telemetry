@@ -1,6 +1,6 @@
 ---
 id: 003-T06
-status: todo           # todo | doing | blocked | done
+status: done           # todo | doing | blocked | done
 depends_on: [003-T05]
 covers: [AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10]
 ---
@@ -30,11 +30,11 @@ export function createFakeKeycloak(): Promise<FakeKeycloak>;   // node:http en p
 ```
 
 ## Archivos a crear/modificar
-- [ ] `test/support/fake-keycloak.ts`, `test/support/probe.controller.ts` (nuevos)
-- [ ] `test/user-auth.e2e-spec.ts` (nuevo; módulo de test = `AppModule.register(testConfig({auth:{issuerUrl: fake.issuer}}))` + `controllers: [ProbeController]`)
+- [x] `test/support/fake-keycloak.ts`, `test/support/probe.controller.ts` (nuevos)
+- [x] `test/user-auth.e2e-spec.ts` (nuevo; módulo de test = `AppModule.register(testConfig({auth:{issuerUrl: fake.issuer}}))` + `controllers: [ProbeController]`)
 
 ## Criterios de aceptación
-- [ ] Un `it('AC-n: …')` por AC-1…AC-10 por HTTP. AC-3: issuer apuntando a un puerto cerrado → 503. AC-10: con `createLogCapture()`, la línea de request tiene `actor` y `tenantId` y no contiene el token.
+- [x] Un `it('AC-n: …')` por AC-1…AC-10 por HTTP. AC-3: issuer apuntando a un puerto cerrado → 503. AC-10: con `createLogCapture()`, la línea de request tiene `actor` y `tenantId` y no contiene el token.
 
 ## Notas
 Verificación manual opcional (anotar en Handoff): con el stack de telemetry-infra en marcha, token *password grant* de `web-app` para `demo-admin` / `dev-password` y `KEYCLOAK_ISSUER_URL=http://keycloak:8080/realms/telemetry` desde la red `telemetry`.
@@ -49,3 +49,6 @@ pnpm check
 ```
 
 ## Handoff
+- Implementado `createFakeKeycloak` (`test/support/fake-keycloak.ts`) sirviendo JWKS local en puerto dinámico y firmando tokens RS256.
+- Creado `ProbeController` (`test/support/probe.controller.ts`) con rutas `@Public()`, `@Roles(...)` y sin anotar.
+- Creado suite E2E `test/user-auth.e2e-spec.ts` cubriendo AC-1 a AC-10 por HTTP. `pnpm check` y `pnpm test:e2e` en verde.

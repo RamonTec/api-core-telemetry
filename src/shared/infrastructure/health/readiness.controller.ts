@@ -1,5 +1,6 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import type { Response } from 'express';
+import { Public } from '../auth/auth.decorators.js';
 import {
   ReadinessRegistry,
   type ReadinessStatus,
@@ -11,6 +12,7 @@ export interface ReadinessResponse {
   readonly [info: string]: unknown;
 }
 
+@Public()
 @Controller('health')
 export class ReadinessController {
   constructor(private readonly registry: ReadinessRegistry) {}

@@ -1,6 +1,6 @@
 ---
 id: 003-T02
-status: todo           # todo | doing | blocked | done
+status: done            # todo | doing | blocked | done
 depends_on: []
 covers: [AC-11]
 ---
@@ -22,12 +22,12 @@ export interface AuthConfig { readonly issuerUrl: string; readonly audience: str
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/infrastructure/config/app-config.ts` (modificado) + spec
-- [ ] `test/image/docker.ts` (`VALID_ENV.KEYCLOAK_ISSUER_URL = "http://keycloak.invalid/realms/telemetry"`, para que `pnpm test:image` y el job `image` de CI sigan en verde)
-- [ ] `test/support/test-env.ts` (`TEST_ENV.KEYCLOAK_ISSUER_URL = "http://keycloak.test/realms/telemetry"`; `testConfig` admite override de `auth`)
+- [x] `src/shared/infrastructure/config/app-config.ts` (modificado) + spec
+- [x] `test/image/docker.ts` (`VALID_ENV.KEYCLOAK_ISSUER_URL = "http://keycloak.invalid/realms/telemetry"`, para que `pnpm test:image` y el job `image` de CI sigan en verde)
+- [x] `test/support/test-env.ts` (`TEST_ENV.KEYCLOAK_ISSUER_URL = "http://keycloak.test/realms/telemetry"`; `testConfig` admite override de `auth`)
 
 ## Criterios de aceptación
-- [ ] **AC-11** — Falta `KEYCLOAK_ISSUER_URL` o no es URL → `ConfigValidationError` que la nombra; `KEYCLOAK_AUDIENCE` por defecto `core-service`; se quitan barras finales del issuer.
+- [x] **AC-11** — Falta `KEYCLOAK_ISSUER_URL` o no es URL → `ConfigValidationError` que la nombra; `KEYCLOAK_AUDIENCE` por defecto `core-service`; se quitan barras finales del issuer.
 
 ## Notas
 Los tests e2e existentes (001) deben seguir pasando: usan `testConfig()`.
@@ -42,3 +42,5 @@ pnpm test:image
 ```
 
 ## Handoff
+Añadido `auth: { issuerUrl, audience }` (`AuthConfig`) a `AppConfig`, validando `KEYCLOAK_ISSUER_URL` (URL requerida sin barra final) y `KEYCLOAK_AUDIENCE` (def. `core-service`).
+Actualizados `TEST_ENV`, `testConfig` y `VALID_ENV` para suite e2e e image tests. Desbloquea T03.

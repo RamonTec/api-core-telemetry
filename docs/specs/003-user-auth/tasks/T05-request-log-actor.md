@@ -1,6 +1,6 @@
 ---
 id: 003-T05
-status: todo           # todo | doing | blocked | done
+status: done           # todo | doing | blocked | done
 depends_on: [003-T04]
 covers: [AC-10]
 ---
@@ -21,10 +21,10 @@ customProps: (req) => ({ correlationId, ...(req.actor && { actor: req.actor.user
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/infrastructure/logging/pino-http-options.ts` (modificado) + caso en `logging.module.spec.ts`
+- [x] `src/shared/infrastructure/logging/pino-http-options.ts` (modificado) + caso en `logging.module.spec.ts`
 
 ## Criterios de aceptación
-- [ ] **AC-10** — Con `req.actor` tenant → `actor` y `tenantId`; operador → solo `actor`; sin actor → ninguno.
+- [x] **AC-10** — Con `req.actor` tenant → `actor` y `tenantId`; operador → solo `actor`; sin actor → ninguno.
 
 ## Fuera de alcance
 - —
@@ -35,3 +35,6 @@ pnpm check
 ```
 
 ## Handoff
+- Implementado `customProps` en `buildPinoHttpOptions` (`pino-http-options.ts`) con función auxiliar `actorProps(req)` que extrae `actor: actor.userId` y condicionalmente `tenantId: actor.tenantId` cuando `actor.kind === 'tenant-user'`.
+- Añadidos tests de integración en `logging.module.spec.ts` bajo suite `AC-10: actor and tenant in request log` verificando los tres comportamientos (tenant user con `actor` y `tenantId`, platform operator con `actor` sin `tenantId`, y request no autenticada sin ninguno).
+- `pnpm check` en verde.

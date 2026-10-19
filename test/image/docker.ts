@@ -44,6 +44,7 @@ export async function dockerOk(
 export const VALID_ENV: Readonly<Record<string, string>> = Object.freeze({
   PORT: '3000',
   LOG_LEVEL: 'info',
+  KEYCLOAK_ISSUER_URL: 'http://keycloak.invalid/realms/telemetry',
 });
 
 export interface RunOptions {
