@@ -1,6 +1,6 @@
 ---
 id: 003-T01
-status: todo           # todo | doing | blocked | done
+status: done            # todo | doing | blocked | done
 depends_on: []
 covers: [AC-4, AC-5, AC-6]
 ---
@@ -34,13 +34,13 @@ export function actorFromClaims(claims: VerifiedClaims): Actor;
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/application/actor.ts` (nuevo)
-- [ ] `src/shared/infrastructure/auth/actor-from-claims.ts` (nuevo; `VerifiedClaims` se define aquí y T03 lo importa) + spec
+- [x] `src/shared/application/actor.ts` (nuevo)
+- [x] `src/shared/infrastructure/auth/actor-from-claims.ts` (nuevo; `VerifiedClaims` se define aquí y T03 lo importa) + spec
 
 ## Criterios de aceptación
-- [ ] **AC-4** — Claims con `tenant_id` UUID y `clientRoles:["tenant-admin","otro"]` → actor tenant con `roles:["tenant-admin"]`.
-- [ ] **AC-5** — `realmRoles:["platform-operator"]` sin tenant → actor operador.
-- [ ] **AC-6** — Un test por cada `ActorRejection`.
+- [x] **AC-4** — Claims con `tenant_id` UUID y `clientRoles:["tenant-admin","otro"]` → actor tenant con `roles:["tenant-admin"]`.
+- [x] **AC-5** — `realmRoles:["platform-operator"]` sin tenant → actor operador.
+- [x] **AC-6** — Un test por cada `ActorRejection`.
 
 ## Fuera de alcance
 - Verificación del JWT (T03), guard (T04).
@@ -51,3 +51,5 @@ pnpm check
 ```
 
 ## Handoff
+Implementados `Actor`, `TenantRole`, `Role`, `TENANT_ROLES` en `src/shared/application/actor.ts` y `actorFromClaims`, `VerifiedClaims`, `ActorRejectedError` en `src/shared/infrastructure/auth/actor-from-claims.ts`.
+Cubre AC-4, AC-5 y AC-6 con 8 tests unitarios. Desbloquea T03 una vez completado T02.

@@ -6,7 +6,7 @@ spec: 003
 
 | Task | Título | Depende de | Estado |
 |------|--------|-----------|--------|
-| T01 | Tipos de actor y reglas de PADR-004 (claims → actor) | — | todo |
+| T01 | Tipos de actor y reglas de PADR-004 (claims → actor) | — | done |
 | T02 | Configuración de Keycloak | — | todo |
 | T03 | Verificador de JWT de usuario (jose) | T01, T02 | todo |
 | T04 | Guard global, decoradores y wiring | T03 | todo |

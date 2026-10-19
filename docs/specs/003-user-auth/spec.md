@@ -1,6 +1,6 @@
 ---
 id: 003-user-auth
-status: draft          # draft | approved | in-progress | done
+status: in-progress     # draft | approved | in-progress | done
 requirements: [FND-FR3, FND-FR4, FND-FR5, FND-FR6, FND-NFR4]
 adrs: [PADR-004, PADR-001]
 ---
