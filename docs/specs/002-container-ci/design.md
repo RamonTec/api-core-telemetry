@@ -1,6 +1,6 @@
 ---
 spec: 002-container-ci
-status: draft          # draft | approved
+status: approved       # draft | approved
 ---
 
 # 002 — Diseño

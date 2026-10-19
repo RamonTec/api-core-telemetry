@@ -24,7 +24,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "check": "scripts/sync-agent-commands.sh --check && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
-    "sdd:sync": "scripts/sync-agent-commands.sh"
+    "sdd:sync": "scripts/sync-agent-commands.sh",
+    "docker:build": "docker build -t core-service:local .",
+    "test:image": "vitest run --config ./vitest.config.image.ts"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",

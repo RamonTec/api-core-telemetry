@@ -7,7 +7,7 @@ Cada fila es una carpeta `docs/specs/NNN-slug/`. Las fases y sus requisitos: `do
 | Spec | Alcance | Requisitos | ADRs | Depende de | Estado |
 |------|---------|-----------|------|-----------|--------|
 | 001-foundation | config, logging, errores, health, apagado | FND-FR1, FND-FR2, FND-NFR4 | 0001, PADR-001 | — | done |
-| 002-container-ci | Dockerfile (amd64 + arm64), `.node-version`, CI `check`, `e2e`, `image` | FND-NFR1–NFR3 | — | 001 | draft |
+| 002-container-ci | Dockerfile (amd64 + arm64), `.node-version`, CI `check`, `e2e`, `image` | FND-NFR1–NFR3 | — | 001 | done |
 | 003-user-auth | JWT de usuario, actor (sub, tenant, roles), `@Public`, `@Roles`, reglas operador/tenant | FND-FR3–FR6 | PADR-004 | 001 | draft |
 | 004-database | Prisma 7 + MySQL, migraciones, readiness, aislamiento por tenant, MySQL en e2e y CI, migraciones al arrancar | FND-FR7, FND-FR8, FND-NFR5 | 0002 | 001 | draft |
 | 005-audit | AuditLogPort, ClockPort, IdGeneratorPort, runAudited con `tenantId` | FND-FR9 | 0003 | 003 | draft |
