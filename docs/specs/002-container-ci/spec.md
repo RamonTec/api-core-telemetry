@@ -1,6 +1,6 @@
 ---
 id: 002-container-ci
-status: in-progress    # draft | approved | in-progress | done
+status: done           # draft | approved | in-progress | done
 requirements: [FND-NFR1, FND-NFR2, FND-NFR3]
 adrs: []
 ---
