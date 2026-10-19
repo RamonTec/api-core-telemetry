@@ -11,7 +11,7 @@ spec: 001
 | T03 | Logging estructurado con correlation id (nestjs-pino) | T02 | done |
 | T04 | Exception filter global y pipe de validación zod | T01, T03 | done |
 | T05 | GET /health y GET /health/ready con registro de checks | — | done |
-| T06 | AppModule, bootstrap y retirada del starter | T02, T03, T04, T05 | todo |
+| T06 | AppModule, bootstrap y retirada del starter | T02, T03, T04, T05 | done |
 | T07 | Suite e2e de la foundation | T06 | todo |
 
 Paralelizables: T01, T02, T05.

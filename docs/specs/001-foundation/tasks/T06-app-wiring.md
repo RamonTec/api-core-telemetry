@@ -1,6 +1,6 @@
 ---
 id: 001-T06
-status: todo           # todo | doing | blocked | done
+status: done          # todo | doing | blocked | done
 depends_on: [001-T02, 001-T03, 001-T04, 001-T05]
 covers: [AC-1, AC-2, AC-14, AC-15]
 ---
@@ -24,15 +24,15 @@ export class AppModule { static register(config: AppConfig, logStream?: Destinat
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/app.module.ts`, `src/main.ts` (modificados)
-- [ ] Borrar `src/app.controller.ts`, `src/app.service.ts`, `src/app.controller.spec.ts`
-- [ ] `test/support/test-env.ts` (nuevo: `TEST_ENV` vacío por ahora + `testConfig(overrides?)`)
+- [x] `src/app.module.ts`, `src/main.ts` (modificados)
+- [x] Borrar `src/app.controller.ts`, `src/app.service.ts`, `src/app.controller.spec.ts`
+- [x] `test/support/test-env.ts` (nuevo: `TEST_ENV` vacío por ahora + `testConfig(overrides?)`)
 
 ## Criterios de aceptación
-- [ ] **AC-1** — `pnpm build && PORT=<libre> node dist/main.js` responde `/health`.
-- [ ] **AC-2** — Env inválido → exit 1 y línea JSON en stderr.
-- [ ] **AC-14** — `SIGTERM` → exit 0.
-- [ ] **AC-15** — `GET /` → 404 `NOT_FOUND`.
+- [x] **AC-1** — `pnpm build && PORT=<libre> node dist/main.js` responde `/health`.
+- [x] **AC-2** — Env inválido → exit 1 y línea JSON en stderr.
+- [x] **AC-14** — `SIGTERM` → exit 0.
+- [x] **AC-15** — `GET /` → 404 `NOT_FOUND`.
 
 ## Notas
 Del `app.module.ts` original solo se conservan `LoggingModule`, `HealthModule` y el `APP_FILTER`. Nada de Traccar, NATS, outbox, ingestion, auth ni audit.
@@ -47,3 +47,8 @@ pnpm check
 ```
 
 ## Handoff
+- `AppModule.register(config, logStream?)` monta `configModule`, `HealthModule`, `LoggingModule`, `HealthController` y `HttpExceptionFilter`.
+- `main.ts` valida config con `loadConfig(process.env)`, arranca con logger Pino, habilita shutdown hooks (`SIGTERM` -> 0) y escucha en `config.port`.
+- Starter (`AppController`, `AppService`, y specs) eliminado.
+- `test/support/test-env.ts` creado con `TEST_ENV` y `testConfig()`, listo para el spec e2e en T07.
+
