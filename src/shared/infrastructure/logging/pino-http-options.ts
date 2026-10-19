@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import pino from 'pino';
 import type { Options } from 'pino-http';
+import type { AuthenticatedRequest } from '../auth/auth.decorators.js';
 import type { AppConfig } from '../config/app-config.js';
 import {
   CORRELATION_ID_HEADER,
@@ -9,6 +10,17 @@ import {
 
 export const SERVICE_NAME = 'core-service';
 
+function actorProps(req: IncomingMessage): Record<string, unknown> {
+  const actor = (req as AuthenticatedRequest).actor;
+  if (!actor) {
+    return {};
+  }
+  return {
+    actor: actor.userId,
+    ...(actor.kind === 'tenant-user' ? { tenantId: actor.tenantId } : {}),
+  };
+}
+
 export function buildPinoHttpOptions(
   config: Pick<AppConfig, 'logLevel'>,
 ): Options {
@@ -16,6 +28,7 @@ export function buildPinoHttpOptions(
     level: config.logLevel,
     base: { service: SERVICE_NAME },
     timestamp: pino.stdTimeFunctions.isoTime,
+    customProps: (req: IncomingMessage) => actorProps(req),
     formatters: {
       level: (label: string) => ({ level: label }),
     },

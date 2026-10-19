@@ -4,10 +4,12 @@ import {
   type INestApplication,
   InternalServerErrorException,
   Logger as NestLogger,
+  Req,
 } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Logger } from 'nestjs-pino';
 import request from 'supertest';
+import type { AuthenticatedRequest } from '../auth/auth.decorators.js';
 import type { AppConfig } from '../config/app-config.js';
 import { LoggingModule } from './logging.module.js';
 import {
@@ -38,6 +40,26 @@ class DummyController {
   @Get('health')
   health() {
     return { status: 'pass' };
+  }
+
+  @Get('with-tenant-actor')
+  withTenantActor(@Req() req: AuthenticatedRequest) {
+    req.actor = {
+      kind: 'tenant-user',
+      userId: 'user-42',
+      tenantId: 'tenant-99',
+      roles: ['tenant-admin'],
+    };
+    return { ok: true };
+  }
+
+  @Get('with-operator-actor')
+  withOperatorActor(@Req() req: AuthenticatedRequest) {
+    req.actor = {
+      kind: 'platform-operator',
+      userId: 'admin-77',
+    };
+    return { ok: true };
   }
 }
 
@@ -232,6 +254,63 @@ describe('LoggingModule (integration)', () => {
       expect(logs.lines().length).toBeGreaterThan(0);
       const rawCaptured = JSON.stringify(logs.lines());
       expect(rawCaptured).not.toContain('s3cr3t');
+    });
+  });
+
+  describe('AC-10: actor and tenant in request log', () => {
+    it('AC-10: request log includes actor and tenantId when req.actor is tenant-user', async () => {
+      await request(app.getHttpServer()).get('/with-tenant-actor').expect(200);
+
+      await vi.waitFor(() => {
+        const reqLog = logs
+          .lines()
+          .find(
+            (l) =>
+              l.context === 'HTTP' &&
+              (l.req as { url?: string } | undefined)?.url ===
+                '/with-tenant-actor',
+          );
+        expect(reqLog).toBeDefined();
+        expect(reqLog?.actor).toBe('user-42');
+        expect(reqLog?.tenantId).toBe('tenant-99');
+      });
+    });
+
+    it('AC-10: request log includes actor and no tenantId when req.actor is platform-operator', async () => {
+      await request(app.getHttpServer())
+        .get('/with-operator-actor')
+        .expect(200);
+
+      await vi.waitFor(() => {
+        const reqLog = logs
+          .lines()
+          .find(
+            (l) =>
+              l.context === 'HTTP' &&
+              (l.req as { url?: string } | undefined)?.url ===
+                '/with-operator-actor',
+          );
+        expect(reqLog).toBeDefined();
+        expect(reqLog?.actor).toBe('admin-77');
+        expect(reqLog?.tenantId).toBeUndefined();
+      });
+    });
+
+    it('AC-10: request log includes neither actor nor tenantId when no actor is set', async () => {
+      await request(app.getHttpServer()).get('/ok').expect(200);
+
+      await vi.waitFor(() => {
+        const reqLog = logs
+          .lines()
+          .find(
+            (l) =>
+              l.context === 'HTTP' &&
+              (l.req as { url?: string } | undefined)?.url === '/ok',
+          );
+        expect(reqLog).toBeDefined();
+        expect(reqLog?.actor).toBeUndefined();
+        expect(reqLog?.tenantId).toBeUndefined();
+      });
     });
   });
 });

@@ -10,7 +10,7 @@ spec: 003
 | T02 | Configuración de Keycloak | — | done |
 | T03 | Verificador de JWT de usuario (jose) | T01, T02 | done |
 | T04 | Guard global, decoradores y wiring | T03 | done |
-| T05 | Actor y tenant en el log de request | T04 | todo |
+| T05 | Actor y tenant en el log de request | T04 | done |
 | T06 | E2E de autenticación con tokens firmados | T05 | todo |
 
 Paralelizables: T01, T02.
