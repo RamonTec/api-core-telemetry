@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  type AuthConfig,
   ConfigValidationError,
   loadConfig,
   LOG_LEVELS,
@@ -17,38 +18,80 @@ function captureError(fn: () => unknown): ConfigValidationError {
 }
 
 describe('app-config', () => {
+  const validBaseEnv = {
+    KEYCLOAK_ISSUER_URL: 'http://keycloak.test/realms/telemetry',
+  };
+
   describe('loadConfig', () => {
-    it('AC-1: empty env returns default { port: 3000, logLevel: "info" }', () => {
-      expect(loadConfig({})).toEqual({
+    it('AC-1: with base env, returns default port, logLevel, and auth.audience', () => {
+      expect(loadConfig(validBaseEnv)).toEqual({
         port: 3000,
         logLevel: 'info',
+        auth: {
+          issuerUrl: 'http://keycloak.test/realms/telemetry',
+          audience: 'core-service',
+        },
       });
     });
 
     it('AC-1: empty string values are treated as absent and apply defaults', () => {
-      expect(loadConfig({ PORT: '', LOG_LEVEL: '' })).toEqual({
+      expect(
+        loadConfig({
+          ...validBaseEnv,
+          PORT: '',
+          LOG_LEVEL: '',
+          KEYCLOAK_AUDIENCE: '',
+        }),
+      ).toEqual({
         port: 3000,
         logLevel: 'info',
+        auth: {
+          issuerUrl: 'http://keycloak.test/realms/telemetry',
+          audience: 'core-service',
+        },
       });
     });
 
     it('AC-1: accepts valid PORT and LOG_LEVEL overrides', () => {
-      expect(loadConfig({ PORT: '8080', LOG_LEVEL: 'debug' })).toEqual({
+      expect(
+        loadConfig({
+          ...validBaseEnv,
+          PORT: '8080',
+          LOG_LEVEL: 'debug',
+        }),
+      ).toEqual({
         port: 8080,
         logLevel: 'debug',
+        auth: {
+          issuerUrl: 'http://keycloak.test/realms/telemetry',
+          audience: 'core-service',
+        },
       });
     });
 
     it('AC-1: ignores undeclared environment variables', () => {
-      expect(loadConfig({ UNRELATED: 'xyz' })).toEqual({
+      expect(
+        loadConfig({
+          ...validBaseEnv,
+          UNRELATED: 'xyz',
+        }),
+      ).toEqual({
         port: 3000,
         logLevel: 'info',
+        auth: {
+          issuerUrl: 'http://keycloak.test/realms/telemetry',
+          audience: 'core-service',
+        },
       });
     });
 
     it('AC-2: PORT=abc LOG_LEVEL=verbose throws ConfigValidationError with invalidVariables = ["PORT", "LOG_LEVEL"]', () => {
       const error = captureError(() =>
-        loadConfig({ PORT: 'abc', LOG_LEVEL: 'verbose' }),
+        loadConfig({
+          ...validBaseEnv,
+          PORT: 'abc',
+          LOG_LEVEL: 'verbose',
+        }),
       );
       expect(error.invalidVariables).toEqual(['PORT', 'LOG_LEVEL']);
     });
@@ -56,6 +99,7 @@ describe('app-config', () => {
     it('AC-2: error message lists invalid variable names but never their values', () => {
       const error = captureError(() =>
         loadConfig({
+          ...validBaseEnv,
           PORT: 'secret-port-value',
           LOG_LEVEL: 'super-secret-level',
         }),
@@ -70,25 +114,80 @@ describe('app-config', () => {
     it.each(['0', '65536', '3.5', '-1'])(
       'AC-2: rejects out-of-range or non-integer PORT=%s',
       (port) => {
-        const error = captureError(() => loadConfig({ PORT: port }));
+        const error = captureError(() =>
+          loadConfig({ ...validBaseEnv, PORT: port }),
+        );
         expect(error.invalidVariables).toEqual(['PORT']);
       },
     );
 
     it.each(LOG_LEVELS)('AC-7: LOG_LEVEL accepts valid level %s', (level) => {
-      expect(loadConfig({ LOG_LEVEL: level })).toEqual({
+      expect(loadConfig({ ...validBaseEnv, LOG_LEVEL: level })).toEqual({
         port: 3000,
         logLevel: level,
+        auth: {
+          issuerUrl: 'http://keycloak.test/realms/telemetry',
+          audience: 'core-service',
+        },
       });
     });
 
     it.each(['trace', 'verbose', 'fatal', 'INFO', 'unknown'])(
       'AC-7: LOG_LEVEL rejects invalid level %s',
       (level) => {
-        const error = captureError(() => loadConfig({ LOG_LEVEL: level }));
+        const error = captureError(() =>
+          loadConfig({ ...validBaseEnv, LOG_LEVEL: level }),
+        );
         expect(error.invalidVariables).toEqual(['LOG_LEVEL']);
       },
     );
+
+    describe('AC-11: Keycloak auth configuration', () => {
+      it('AC-11: missing KEYCLOAK_ISSUER_URL throws ConfigValidationError naming it', () => {
+        const error = captureError(() => loadConfig({}));
+        expect(error.invalidVariables).toContain('KEYCLOAK_ISSUER_URL');
+      });
+
+      it('AC-11: empty string KEYCLOAK_ISSUER_URL throws ConfigValidationError naming it', () => {
+        const error = captureError(() =>
+          loadConfig({ KEYCLOAK_ISSUER_URL: '' }),
+        );
+        expect(error.invalidVariables).toContain('KEYCLOAK_ISSUER_URL');
+      });
+
+      it('AC-11: invalid KEYCLOAK_ISSUER_URL URL throws ConfigValidationError naming it', () => {
+        const error = captureError(() =>
+          loadConfig({ KEYCLOAK_ISSUER_URL: 'not-a-valid-url' }),
+        );
+        expect(error.invalidVariables).toContain('KEYCLOAK_ISSUER_URL');
+      });
+
+      it('AC-11: defaults KEYCLOAK_AUDIENCE to core-service', () => {
+        const config = loadConfig(validBaseEnv);
+        expect(config.auth.audience).toBe('core-service');
+      });
+
+      it('AC-11: strips trailing slashes from KEYCLOAK_ISSUER_URL', () => {
+        const config = loadConfig({
+          KEYCLOAK_ISSUER_URL: 'http://keycloak.test/realms/telemetry///',
+        });
+        expect(config.auth.issuerUrl).toBe(
+          'http://keycloak.test/realms/telemetry',
+        );
+      });
+
+      it('AC-11: accepts custom KEYCLOAK_AUDIENCE', () => {
+        const config = loadConfig({
+          ...validBaseEnv,
+          KEYCLOAK_AUDIENCE: 'custom-client',
+        });
+        const expectedAuth: AuthConfig = {
+          issuerUrl: 'http://keycloak.test/realms/telemetry',
+          audience: 'custom-client',
+        };
+        expect(config.auth).toEqual(expectedAuth);
+      });
+    });
   });
 
   describe('parseEnv', () => {

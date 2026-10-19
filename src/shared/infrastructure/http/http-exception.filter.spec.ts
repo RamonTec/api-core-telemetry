@@ -20,6 +20,7 @@ import {
   createLogCapture,
   type LogCapture,
 } from '../../../../test/support/log-capture.js';
+import { testConfig } from '../../../../test/support/test-env.js';
 import { HttpExceptionFilter } from './http-exception.filter.js';
 import { ZodValidationPipe } from './zod-validation.pipe.js';
 
@@ -100,7 +101,7 @@ describe('HttpExceptionFilter (integration)', () => {
 
     const moduleRef = await Test.createTestingModule({
       imports: [
-        LoggingModule.forRoot({ port: 0, logLevel: 'debug' }, logs.stream),
+        LoggingModule.forRoot(testConfig({ logLevel: 'debug' }), logs.stream),
       ],
       controllers: [TestController],
       providers: [
