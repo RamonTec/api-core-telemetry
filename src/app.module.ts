@@ -7,6 +7,7 @@ import {
   APP_CONFIG,
   type AppConfig,
 } from './shared/infrastructure/config/app-config.js';
+import { DatabaseModule } from './shared/infrastructure/database/database.module.js';
 import { HealthModule } from './shared/infrastructure/health/health.module.js';
 import { HealthController } from './shared/infrastructure/http/health.controller.js';
 import { HttpExceptionFilter } from './shared/infrastructure/http/http-exception.filter.js';
@@ -31,6 +32,7 @@ export class AppModule {
       imports: [
         configModule,
         HealthModule,
+        DatabaseModule,
         LoggingModule.forRoot(config, logStream),
         AuthModule.forRoot(config.auth, overrides),
       ],

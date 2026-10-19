@@ -9,7 +9,7 @@ spec: 004
 | T01 | Prisma 7: dependencias, config, schema vacío y scripts | — | done |
 | T02 | DATABASE_URL en la configuración | — | done |
 | T03 | Función de aislamiento por tenant (pura) | — | done |
-| T04 | PrismaService, DatabaseModule y check de readiness | T01, T02, T03 | todo |
+| T04 | PrismaService, DatabaseModule y check de readiness | T01, T02, T03 | done |
 | T05 | MySQL para e2e (local y CI) y e2e de readiness | T04 | todo |
 | T06 | Imagen con Prisma: generate en build y migraciones al arrancar | T05 | todo |
 
