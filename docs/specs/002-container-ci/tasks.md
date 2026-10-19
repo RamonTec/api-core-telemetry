@@ -7,7 +7,7 @@ spec: 002
 | Task | Título | Depende de | Estado |
 |------|--------|-----------|--------|
 | T01 | Dockerfile, .dockerignore y script docker:build | — | done |
-| T02 | Suite de tests de la imagen | T01 | todo |
+| T02 | Suite de tests de la imagen | T01 | done |
 | T03 | Workflow de CI con check, e2e, image y build arm64 | T02 | todo |
 
 ## Cobertura AC → tasks
