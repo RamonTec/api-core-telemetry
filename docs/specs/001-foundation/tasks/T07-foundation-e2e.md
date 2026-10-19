@@ -1,6 +1,6 @@
 ---
 id: 001-T07
-status: todo           # todo | doing | blocked | done
+status: done          # todo | doing | blocked | done
 depends_on: [001-T06]
 covers: [AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-9, AC-10, AC-12, AC-13, AC-14, AC-15]
 ---
@@ -18,11 +18,11 @@ covers: [AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-9, AC-10, AC-12, AC-13, AC-14, A
 - `src/app.module.ts`
 
 ## Archivos a crear/modificar
-- [ ] `test/app.e2e-spec.ts` (reescrito)
-- [ ] `vitest.config.e2e.ts` (como el de traccar-adapter, sin `fileParallelism:false` por ahora)
+- [x] `test/app.e2e-spec.ts` (reescrito)
+- [x] `vitest.config.e2e.ts` (como el de traccar-adapter, sin `fileParallelism:false` por ahora)
 
 ## Criterios de aceptación
-- [ ] Un `it('AC-n: …')` por cada AC cubierto: correlation id, log de request, redacción de headers, 404, 500 (ruta de prueba que lanza), `/health`, `/health/ready`, arranque con `PORT`, env inválido, `SIGTERM`, `GET /` 404.
+- [x] Un `it('AC-n: …')` por cada AC cubierto: correlation id, log de request, redacción de headers, 404, 500 (ruta de prueba que lanza), `/health`, `/health/ready`, arranque con `PORT`, env inválido, `SIGTERM`, `GET /` 404.
 
 ## Notas
 Portar las secciones "In-process" y "Real process" del original; quitar las de auth y Traccar. Para AC-9, registrar un controller de prueba solo en el test.
@@ -37,3 +37,7 @@ pnpm check
 ```
 
 ## Handoff
+- Suite e2e completa en `test/app.e2e-spec.ts` cubriendo in-process (supertest) y proceso real (`dist/main.js`).
+- Cubre AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-9, AC-10, AC-12, AC-13, AC-14, AC-15.
+- Tests ejecutables vía `pnpm test:e2e`.
+
