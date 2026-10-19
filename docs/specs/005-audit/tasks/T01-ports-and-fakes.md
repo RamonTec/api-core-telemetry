@@ -1,6 +1,6 @@
 ---
 id: 005-T01
-status: todo           # todo | doing | blocked | done
+status: done           # todo | doing | blocked | done
 depends_on: []
 covers: [AC-7]
 ---
@@ -29,11 +29,11 @@ export interface IdGeneratorPort { next(): string }                        expor
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/application/ports/{audit-log,clock,id-generator}.port.ts` (nuevos)
-- [ ] `src/shared/application/ports/__fakes__/{audit-log,clock,id-generator}.fake.ts` (nuevos) + spec de los fakes
+- [x] `src/shared/application/ports/{audit-log,clock,id-generator}.port.ts` (nuevos)
+- [x] `src/shared/application/ports/__fakes__/{audit-log,clock,id-generator}.fake.ts` (nuevos) + spec de los fakes
 
 ## Criterios de aceptación
-- [ ] **AC-7** — El fake de ids es secuencial y con formato UUID v7 (`/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/`).
+- [x] **AC-7** — El fake de ids es secuencial y con formato UUID v7 (`/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/`).
 
 ## Fuera de alcance
 - —
@@ -44,3 +44,6 @@ pnpm check
 ```
 
 ## Handoff
+- Creados los ports `AuditLogPort`, `ClockPort` e `IdGeneratorPort` con sus tokens Symbol.
+- Implementados `FakeAuditLog` (con captura y `failNext`), `FakeClock` (`set`, `setDate`, `advance`) y `FakeIdGenerator` (secuencial UUID v7).
+- Cobertura de tests unitarios al 100% para los tres fakes (cumpliendo AC-7).

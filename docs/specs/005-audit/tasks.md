@@ -6,7 +6,7 @@ spec: 005
 
 | Task | Título | Depende de | Estado |
 |------|--------|-----------|--------|
-| T01 | Ports de auditoría, reloj e ids con sus fakes | — | todo |
+| T01 | Ports de auditoría, reloj e ids con sus fakes | — | done |
 | T02 | Helper runAudited con actor y tenant | T01 | todo |
 | T03 | Adaptadores (pino, reloj, UUID v7) y AuditModule global | T02 | todo |
 
