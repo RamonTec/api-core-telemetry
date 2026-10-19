@@ -1,0 +1,10 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/shared/infrastructure/database/generated"
+  importFileExtension = "js"
+  moduleFormat        = "esm"
+}
+
+datasource db {
+  provider = "mysql"
+}

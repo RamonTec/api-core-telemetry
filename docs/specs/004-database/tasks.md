@@ -6,7 +6,7 @@ spec: 004
 
 | Task | Título | Depende de | Estado |
 |------|--------|-----------|--------|
-| T01 | Prisma 7: dependencias, config, schema vacío y scripts | — | todo |
+| T01 | Prisma 7: dependencias, config, schema vacío y scripts | — | done |
 | T02 | DATABASE_URL en la configuración | — | todo |
 | T03 | Función de aislamiento por tenant (pura) | — | todo |
 | T04 | PrismaService, DatabaseModule y check de readiness | T01, T02, T03 | todo |
