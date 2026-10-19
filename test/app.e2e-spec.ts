@@ -119,14 +119,16 @@ describe('Foundation (e2e)', () => {
       expect(res.body).toEqual({ status: 'ok' });
     });
 
-    it('AC-13: GET /health/ready returns 200 { status: "ok", checks: {} }', async () => {
+    it('AC-13: GET /health/ready returns 200 { status: "ok", checks: { database: "ok" } }', async () => {
       const res = await request(app.getHttpServer())
         .get('/health/ready')
         .expect(200);
 
       expect(res.body).toEqual({
         status: 'ok',
-        checks: {},
+        checks: {
+          database: 'ok',
+        },
       });
     });
 
