@@ -21,6 +21,8 @@ pnpm check   # sync SDD + typecheck + lint + format + tests
 |---|---|---|---|
 | `PORT` | Puerto HTTP del servicio | No | `3000` |
 | `LOG_LEVEL` | Nivel de log (`debug`, `info`, `warn`, `error`) | No | `info` |
+| `KEYCLOAK_ISSUER_URL` | URL del realm de Keycloak emisor de tokens | Sí | — |
+| `KEYCLOAK_AUDIENCE` | Audiencia esperada en los JWTs de usuario | No | `core-service` |
 
 ## Imagen de contenedor
 

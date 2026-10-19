@@ -11,7 +11,7 @@ spec: 003
 | T03 | Verificador de JWT de usuario (jose) | T01, T02 | done |
 | T04 | Guard global, decoradores y wiring | T03 | done |
 | T05 | Actor y tenant en el log de request | T04 | done |
-| T06 | E2E de autenticación con tokens firmados | T05 | todo |
+| T06 | E2E de autenticación con tokens firmados | T05 | done |
 
 Paralelizables: T01, T02.
 
@@ -31,9 +31,9 @@ Paralelizables: T01, T02.
 | AC-11 | T02 |
 
 ## Checklist de cierre del spec
-- [ ] Todos los tasks en `done` con `## Handoff` relleno
-- [ ] Cada AC del spec tiene al menos un test `it('AC-n: …')` en verde
-- [ ] `pnpm check` y `pnpm test:e2e` en verde
-- [ ] Variables de entorno nuevas documentadas (README) y añadidas a `test/support/test-env.ts`
-- [ ] `spec.md` → `status: done` y fila del `ROADMAP.md` actualizada
+- [x] Todos los tasks en `done` con `## Handoff` relleno
+- [x] Cada AC del spec tiene al menos un test `it('AC-n: …')` en verde
+- [x] `pnpm check` y `pnpm test:e2e` en verde
+- [x] Variables de entorno nuevas documentadas (README) y añadidas a `test/support/test-env.ts`
+- [x] `spec.md` → `status: done` y fila del `ROADMAP.md` actualizada
 - [ ] PR abierto con la lista de tasks y la matriz AC → tasks
