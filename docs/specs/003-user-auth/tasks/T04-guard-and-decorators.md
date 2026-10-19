@@ -1,6 +1,6 @@
 ---
 id: 003-T04
-status: todo           # todo | doing | blocked | done
+status: done            # todo | doing | blocked | done
 depends_on: [003-T03]
 covers: [AC-1, AC-2, AC-3, AC-6, AC-7, AC-8, AC-9]
 ---
@@ -32,13 +32,13 @@ export class AuthModule { static forRoot(config: AuthConfig, overrides?: { jwtVe
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/infrastructure/auth/auth.decorators.ts`, `user-auth.guard.ts` (+ spec), `auth.module.ts` (nuevos)
-- [ ] `src/app.module.ts` (importa `AuthModule`)
-- [ ] `health.controller.ts` y `readiness.controller.ts` (`@Public()`)
+- [x] `src/shared/infrastructure/auth/auth.decorators.ts`, `user-auth.guard.ts` (+ spec), `auth.module.ts` (nuevos)
+- [x] `src/app.module.ts` (importa `AuthModule`)
+- [x] `health.controller.ts` y `readiness.controller.ts` (`@Public()`)
 
 ## Criterios de aceptación
-- [ ] **AC-1/2/3/6/7/8** — Spec del guard con un `JwtVerifier` falso (clase con `verify` controlado) y `Reflector` real.
-- [ ] **AC-9** — `/health` y `/health/ready` sin token → 200 (e2e de 001 sigue en verde).
+- [x] **AC-1/2/3/6/7/8** — Spec del guard con un `JwtVerifier` falso (clase con `verify` controlado) y `Reflector` real.
+- [x] **AC-9** — `/health` y `/health/ready` sin token → 200 (e2e de 001 sigue en verde).
 
 ## Fuera de alcance
 - —
@@ -49,3 +49,5 @@ pnpm check
 ```
 
 ## Handoff
+Implementado `UserAuthGuard` global en `AuthModule` con decoradores `@Public()`, `@Roles(...)` y `@CurrentActor()`.
+Rutas `/health*` marcadas `@Public()`, denegación por defecto (403), verificación JWT, rechazo PADR-004 y autorización por roles. Desbloquea T05.

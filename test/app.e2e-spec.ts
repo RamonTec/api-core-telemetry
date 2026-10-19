@@ -6,6 +6,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from 'nestjs-pino';
 import request from 'supertest';
 import { AppModule } from './../src/app.module.js';
+import { Public } from '../src/shared/infrastructure/auth/auth.decorators.js';
 import { createLogCapture, type LogCapture } from './support/log-capture.js';
 import { TEST_ENV, testConfig } from './support/test-env.js';
 
@@ -65,6 +66,7 @@ async function waitForHealth(
   throw new Error(`Timed out waiting for health check on port ${port}`);
 }
 
+@Public()
 @Controller('test-route')
 class TestRouteController {
   @Get('ok')
