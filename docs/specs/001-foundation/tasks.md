@@ -11,8 +11,8 @@ spec: 001
 | T03 | Logging estructurado con correlation id (nestjs-pino) | T02 | done |
 | T04 | Exception filter global y pipe de validación zod | T01, T03 | done |
 | T05 | GET /health y GET /health/ready con registro de checks | — | done |
-| T06 | AppModule, bootstrap y retirada del starter | T02, T03, T04, T05 | todo |
-| T07 | Suite e2e de la foundation | T06 | todo |
+| T06 | AppModule, bootstrap y retirada del starter | T02, T03, T04, T05 | done |
+| T07 | Suite e2e de la foundation | T06 | done |
 
 Paralelizables: T01, T02, T05.
 
@@ -36,9 +36,10 @@ Paralelizables: T01, T02, T05.
 | AC-15 | T06, T07 |
 
 ## Checklist de cierre del spec
-- [ ] Todos los tasks en `done` con `## Handoff` relleno
-- [ ] Cada AC del spec tiene al menos un test `it('AC-n: …')` en verde
-- [ ] `pnpm check` y `pnpm test:e2e` en verde
-- [ ] Variables de entorno nuevas documentadas (README) y añadidas a `test/support/test-env.ts`
-- [ ] `spec.md` → `status: done` y fila del `ROADMAP.md` actualizada
+- [x] Todos los tasks en `done` con `## Handoff` relleno
+- [x] Cada AC del spec tiene al menos un test `it('AC-n: …')` en verde
+- [x] `pnpm check` y `pnpm test:e2e` en verde
+- [x] Variables de entorno nuevas documentadas (README) y añadidas a `test/support/test-env.ts`
+- [x] `spec.md` → `status: done` y fila del `ROADMAP.md` actualizada
 - [ ] PR abierto con la lista de tasks y la matriz AC → tasks
+
