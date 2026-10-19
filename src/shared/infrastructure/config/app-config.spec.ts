@@ -20,6 +20,7 @@ function captureError(fn: () => unknown): ConfigValidationError {
 describe('app-config', () => {
   const validBaseEnv = {
     KEYCLOAK_ISSUER_URL: 'http://keycloak.test/realms/telemetry',
+    DATABASE_URL: 'mysql://root:test@127.0.0.1:3307/core_test',
   };
 
   describe('loadConfig', () => {
@@ -30,6 +31,9 @@ describe('app-config', () => {
         auth: {
           issuerUrl: 'http://keycloak.test/realms/telemetry',
           audience: 'core-service',
+        },
+        database: {
+          url: 'mysql://root:test@127.0.0.1:3307/core_test',
         },
       });
     });
@@ -49,6 +53,9 @@ describe('app-config', () => {
           issuerUrl: 'http://keycloak.test/realms/telemetry',
           audience: 'core-service',
         },
+        database: {
+          url: 'mysql://root:test@127.0.0.1:3307/core_test',
+        },
       });
     });
 
@@ -66,6 +73,9 @@ describe('app-config', () => {
           issuerUrl: 'http://keycloak.test/realms/telemetry',
           audience: 'core-service',
         },
+        database: {
+          url: 'mysql://root:test@127.0.0.1:3307/core_test',
+        },
       });
     });
 
@@ -81,6 +91,9 @@ describe('app-config', () => {
         auth: {
           issuerUrl: 'http://keycloak.test/realms/telemetry',
           audience: 'core-service',
+        },
+        database: {
+          url: 'mysql://root:test@127.0.0.1:3307/core_test',
         },
       });
     });
@@ -129,6 +142,9 @@ describe('app-config', () => {
           issuerUrl: 'http://keycloak.test/realms/telemetry',
           audience: 'core-service',
         },
+        database: {
+          url: 'mysql://root:test@127.0.0.1:3307/core_test',
+        },
       });
     });
 
@@ -169,6 +185,7 @@ describe('app-config', () => {
 
       it('AC-11: strips trailing slashes from KEYCLOAK_ISSUER_URL', () => {
         const config = loadConfig({
+          ...validBaseEnv,
           KEYCLOAK_ISSUER_URL: 'http://keycloak.test/realms/telemetry///',
         });
         expect(config.auth.issuerUrl).toBe(
@@ -186,6 +203,70 @@ describe('app-config', () => {
           audience: 'custom-client',
         };
         expect(config.auth).toEqual(expectedAuth);
+      });
+    });
+
+    describe('AC-1: Database configuration', () => {
+      it('AC-1: missing DATABASE_URL throws ConfigValidationError naming it', () => {
+        const error = captureError(() =>
+          loadConfig({
+            KEYCLOAK_ISSUER_URL: 'http://keycloak.test/realms/telemetry',
+          }),
+        );
+        expect(error.invalidVariables).toContain('DATABASE_URL');
+      });
+
+      it('AC-1: empty string DATABASE_URL throws ConfigValidationError naming it', () => {
+        const error = captureError(() =>
+          loadConfig({
+            ...validBaseEnv,
+            DATABASE_URL: '',
+          }),
+        );
+        expect(error.invalidVariables).toContain('DATABASE_URL');
+      });
+
+      it.each([
+        'postgres://user:pass@localhost:5432/db',
+        'mysql:',
+        'mysql://',
+        'http://localhost:3306',
+        'not-a-url',
+      ])(
+        'AC-1: DATABASE_URL without mysql:// scheme throws ConfigValidationError naming it (%s)',
+        (url) => {
+          const error = captureError(() =>
+            loadConfig({
+              ...validBaseEnv,
+              DATABASE_URL: url,
+            }),
+          );
+          expect(error.invalidVariables).toContain('DATABASE_URL');
+        },
+      );
+
+      it('AC-1: error message does not contain DATABASE_URL secret or value', () => {
+        const error = captureError(() =>
+          loadConfig({
+            ...validBaseEnv,
+            DATABASE_URL:
+              'mysql-without-double-slash-and-super-secret-password',
+          }),
+        );
+        expect(error.message).toBe(
+          'Invalid environment variables: DATABASE_URL',
+        );
+        expect(error.message).not.toContain('super-secret-password');
+      });
+
+      it('AC-1: accepts valid DATABASE_URL with mysql:// scheme', () => {
+        const config = loadConfig({
+          ...validBaseEnv,
+          DATABASE_URL: 'mysql://root:test@127.0.0.1:3307/core_test',
+        });
+        expect(config.database).toEqual({
+          url: 'mysql://root:test@127.0.0.1:3307/core_test',
+        });
       });
     });
   });

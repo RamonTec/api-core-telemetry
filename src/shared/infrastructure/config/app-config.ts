@@ -8,10 +8,15 @@ export interface AuthConfig {
   readonly audience: string;
 }
 
+export interface DatabaseConfig {
+  readonly url: string;
+}
+
 export interface AppConfig {
   readonly port: number;
   readonly logLevel: LogLevel;
   readonly auth: AuthConfig;
+  readonly database: DatabaseConfig;
 }
 
 export const APP_CONFIG = Symbol('AppConfig');
@@ -47,6 +52,7 @@ const appEnvSchema = z.object({
   LOG_LEVEL: z.enum(LOG_LEVELS).default('info'),
   KEYCLOAK_ISSUER_URL: z.url().transform((val) => val.replace(/\/+$/, '')),
   KEYCLOAK_AUDIENCE: z.string().min(1).default('core-service'),
+  DATABASE_URL: z.string().regex(/^mysql:\/\/.+/),
 });
 
 export function loadConfig(env: Record<string, string | undefined>): AppConfig {
@@ -57,6 +63,9 @@ export function loadConfig(env: Record<string, string | undefined>): AppConfig {
     auth: {
       issuerUrl: parsed.KEYCLOAK_ISSUER_URL,
       audience: parsed.KEYCLOAK_AUDIENCE,
+    },
+    database: {
+      url: parsed.DATABASE_URL,
     },
   };
 }

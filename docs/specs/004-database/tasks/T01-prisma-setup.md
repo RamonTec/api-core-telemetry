@@ -1,6 +1,6 @@
 ---
 id: 004-T01
-status: todo           # todo | doing | blocked | done
+status: done          # todo | doing | blocked | done
 depends_on: []
 covers: [AC-2]
 ---
@@ -32,11 +32,11 @@ datasource db { provider = "mysql" }
 ```
 
 ## Archivos a crear/modificar
-- [ ] `package.json`, `pnpm-workspace.yaml` (nuevo), `prisma.config.ts` (nuevo), `prisma/schema.prisma` (nuevo)
-- [ ] `.gitignore`, `.oxlintrc.json` (`ignorePatterns`), `.prettierignore` (nuevo) → ignorar `src/shared/infrastructure/database/generated/`
+- [x] `package.json`, `pnpm-workspace.yaml` (nuevo), `prisma.config.ts` (nuevo), `prisma/schema.prisma` (nuevo)
+- [x] `.gitignore`, `.oxlintrc.json` (`ignorePatterns`), `.prettierignore` (nuevo) → ignorar `src/shared/infrastructure/database/generated/`
 
 ## Criterios de aceptación
-- [ ] **AC-2** — `pnpm install` regenera el cliente; `pnpm build` y `pnpm check` en verde; `git status` no muestra archivos generados.
+- [x] **AC-2** — `pnpm install` regenera el cliente; `pnpm build` y `pnpm check` en verde; `git status` no muestra archivos generados.
 
 ## Notas
 No ejecutes `prisma init`: instala skills en `.claude/`, `.agents/`, `.windsurf/` y rompe `pnpm sdd:sync --check`. Crea los archivos a mano.
@@ -52,3 +52,7 @@ pnpm check
 ```
 
 ## Handoff
+- Prisma 7.10.1 configurado con generador cliente ESM en `src/shared/infrastructure/database/generated/`.
+- `pnpm-workspace.yaml` añadido con `allowBuilds` para `prisma` y `@prisma/engines`.
+- Scripts `db:*`, `postinstall` y `build` actualizados en `package.json`.
+- Directorio generado ignorado en `.gitignore`, `.oxlintrc.json` y `.prettierignore`.

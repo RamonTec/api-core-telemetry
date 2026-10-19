@@ -71,7 +71,12 @@ describe('Container image (spec 002)', () => {
   it('AC-1: the build fails when package.json and the lockfile disagree', async () => {
     const context = mkdtempSync(join(tmpdir(), 'core-service-ctx-'));
     try {
-      for (const file of ['Dockerfile', '.dockerignore', 'pnpm-lock.yaml']) {
+      for (const file of [
+        'Dockerfile',
+        '.dockerignore',
+        'pnpm-lock.yaml',
+        'pnpm-workspace.yaml',
+      ]) {
         cpSync(file, join(context, file));
       }
       const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as {
@@ -104,7 +109,19 @@ describe('Container image (spec 002)', () => {
   });
 
   it('AC-2: with invalid configuration it exits with non-zero exit code naming the variable', async () => {
-    const args = ['run', '--rm', '-e', 'PORT=abc', IMAGE];
+    const args = [
+      'run',
+      '--rm',
+      '-e',
+      'PORT=abc',
+      '-e',
+      `DATABASE_URL=${VALID_ENV.DATABASE_URL}`,
+      '-e',
+      `KEYCLOAK_ISSUER_URL=${VALID_ENV.KEYCLOAK_ISSUER_URL}`,
+      '-e',
+      'RUN_MIGRATIONS=false',
+      IMAGE,
+    ];
 
     const res = await docker(args);
 
@@ -123,14 +140,23 @@ describe('Container image (spec 002)', () => {
   it('AC-4: contains only compiled code and production dependencies, without environment-specific configuration', async () => {
     expect((await shell('ls -A /app')).split('\n').sort()).toEqual([
       'dist',
+      'docker-entrypoint.sh',
       'node_modules',
       'package.json',
+      'prisma',
+      'prisma.config.ts',
     ]);
     expect(
       await shell(
-        'find /app -path /app/node_modules -prune -o -name "*.ts" ! -name "*.d.ts" -print',
+        'find /app -path /app/node_modules -prune -o -name "*.ts" ! -name "*.d.ts" ! -name "prisma.config.ts" -print',
       ),
     ).toBe('');
+    expect(await shell('test -x /app/docker-entrypoint.sh && echo ok')).toBe(
+      'ok',
+    );
+    expect(
+      await shell('test -x /app/node_modules/.bin/prisma && echo ok'),
+    ).toBe('ok');
     expect(
       await shell('find /app/dist -name "*.spec.*" -o -name "__fakes__"'),
     ).toBe('');
@@ -173,5 +199,21 @@ describe('Container image (spec 002)', () => {
 
     expect(exitCode).toBe(0);
     expect(ms).toBeLessThan(10_000);
+  });
+
+  it('AC-9: with RUN_MIGRATIONS=false does not attempt to connect to the database', async () => {
+    const name = containerName();
+    await runContainer(name, {
+      env: {
+        ...VALID_ENV,
+        DATABASE_URL: 'mysql://root:test@127.0.0.1:1/core_test',
+        RUN_MIGRATIONS: 'false',
+      },
+    });
+    await waitHealthy(name, 30_000);
+
+    const res = await httpInContainer(name, '/health');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ status: 'ok' });
   });
 });

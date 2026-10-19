@@ -8,7 +8,12 @@
   "type": "module",
   "packageManager": "pnpm@11.20.0",
   "scripts": {
-    "build": "nest build",
+    "build": "prisma generate && nest build",
+    "postinstall": "test -f prisma/schema.prisma && prisma generate || exit 0",
+    "db:generate": "prisma generate",
+    "db:migrate:new": "prisma migrate dev --create-only --name",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -26,16 +31,21 @@
     "check": "scripts/sync-agent-commands.sh --check && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
     "sdd:sync": "scripts/sync-agent-commands.sh",
     "docker:build": "docker build -t core-service:local .",
-    "test:image": "vitest run --config ./vitest.config.image.ts"
+    "test:image": "vitest run --config ./vitest.config.image.ts",
+    "test:infra:up": "docker run -d --rm --name core-service-test-mysql -e MYSQL_ROOT_PASSWORD=test -e MYSQL_DATABASE=core_test -p 3307:3306 mysql:8.4",
+    "test:infra:down": "docker stop core-service-test-mysql"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
     "@nestjs/core": "^12.0.1",
     "@nestjs/platform-express": "^12.0.1",
+    "@prisma/adapter-mariadb": "~7.10.1",
+    "@prisma/client": "~7.10.1",
     "jose": "^6.2.12",
     "nestjs-pino": "^5.3.1",
     "pino": "^10.4.0",
     "pino-http": "^11.0.0",
+    "prisma": "~7.10.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "zod": "^4.6.7"

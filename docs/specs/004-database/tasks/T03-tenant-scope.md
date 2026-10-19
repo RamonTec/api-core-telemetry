@@ -1,6 +1,6 @@
 ---
 id: 004-T03
-status: todo           # todo | doing | blocked | done
+status: done          # todo | doing | blocked | done
 depends_on: []
 covers: [AC-5, AC-6]
 ---
@@ -28,12 +28,12 @@ export function tenantScopedModels(prismaNamespace: { ModelName: Record<string, 
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/infrastructure/database/tenant-scope.ts` (nuevo) + spec
+- [x] `src/shared/infrastructure/database/tenant-scope.ts` (nuevo) + spec
 
 ## Criterios de aceptación
-- [ ] **AC-5** — Una tabla de casos (`it.each`) por operación: `where` y `data` resultantes.
-- [ ] **AC-6** — `create` con otro `tenantId` → `TenantIsolationError`; operación desconocida → `TenantIsolationError`; la entrada no se muta.
-- [ ] `tenantScopedModels` con un namespace falso devuelve solo los modelos con `tenantId`.
+- [x] **AC-5** — Una tabla de casos (`it.each`) por operación: `where` y `data` resultantes.
+- [x] **AC-6** — `create` con otro `tenantId` → `TenantIsolationError`; operación desconocida → `TenantIsolationError`; la entrada no se muta.
+- [x] `tenantScopedModels` con un namespace falso devuelve solo los modelos con `tenantId`.
 
 ## Fuera de alcance
 - —
@@ -44,3 +44,7 @@ pnpm check
 ```
 
 ## Handoff
+- Implementada clase TenantIsolationError (hereda de Error).
+- Implementada función pura scopeArgs soportando 16 operaciones de Prisma y fallando cerrado.
+- Validada inmutabilidad de argumentos de entrada y rechazo de tenantId dispar en data/create/update.
+- Implementada función tenantScopedModels filtrando modelos por tenantId en su ScalarFieldEnum.

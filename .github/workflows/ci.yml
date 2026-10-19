@@ -33,6 +33,15 @@ jobs:
     name: e2e
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: core_test
+        ports:
+          - 3307:3306
+        options: --health-cmd="mysqladmin ping -ptest" --health-interval=5s --health-retries=20
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4

@@ -7,6 +7,9 @@
   "env": {
     "node": true
   },
+  "ignorePatterns": [
+    "src/shared/infrastructure/database/generated/**"
+  ],
   "overrides": [
     {
       "files": ["src/**/domain/**/*.ts"],
