@@ -1,6 +1,6 @@
 ---
 id: 005-audit
-status: approved       # draft | approved | in-progress | done
+status: done           # draft | approved | in-progress | done
 requirements: [FND-FR9]
 adrs: [0003]
 ---
