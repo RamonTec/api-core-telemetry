@@ -1,6 +1,6 @@
 ---
 id: 004-database
-status: approved       # draft | approved | in-progress | done
+status: done       # draft | approved | in-progress | done
 requirements: [FND-FR7, FND-FR8, FND-NFR5]
 adrs: [0002]
 ---

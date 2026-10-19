@@ -11,7 +11,7 @@ spec: 004
 | T03 | Función de aislamiento por tenant (pura) | — | done |
 | T04 | PrismaService, DatabaseModule y check de readiness | T01, T02, T03 | done |
 | T05 | MySQL para e2e (local y CI) y e2e de readiness | T04 | done |
-| T06 | Imagen con Prisma: generate en build y migraciones al arrancar | T05 | todo |
+| T06 | Imagen con Prisma: generate en build y migraciones al arrancar | T05 | done |
 
 Paralelizables: T01, T02, T03.
 
@@ -29,9 +29,9 @@ Paralelizables: T01, T02, T03.
 | AC-9 | T06 |
 
 ## Checklist de cierre del spec
-- [ ] Todos los tasks en `done` con `## Handoff` relleno
-- [ ] Cada AC del spec tiene al menos un test `it('AC-n: …')` en verde
-- [ ] `pnpm check` y `pnpm test:e2e` en verde
-- [ ] Variables de entorno nuevas documentadas (README) y añadidas a `test/support/test-env.ts`
-- [ ] `spec.md` → `status: done` y fila del `ROADMAP.md` actualizada
+- [x] Todos los tasks en `done` con `## Handoff` relleno
+- [x] Cada AC del spec tiene al menos un test `it('AC-n: …')` en verde
+- [x] `pnpm check` y `pnpm test:e2e` en verde
+- [x] Variables de entorno nuevas documentadas (README) y añadidas a `test/support/test-env.ts`
+- [x] `spec.md` → `status: done` y fila del `ROADMAP.md` actualizada
 - [ ] PR abierto con la lista de tasks y la matriz AC → tasks
