@@ -8,6 +8,7 @@ import request from 'supertest';
 import { AppModule } from './../src/app.module.js';
 import { Public } from '../src/shared/infrastructure/auth/auth.decorators.js';
 import { createLogCapture, type LogCapture } from './support/log-capture.js';
+import { checkHttpContract, recordResponses } from './support/http-contract.js';
 import { TEST_ENV, testConfig } from './support/test-env.js';
 
 async function resetLoggerState(): Promise<void> {
@@ -84,6 +85,7 @@ describe('Foundation (e2e)', () => {
   describe('In-process', () => {
     let app: NestExpressApplication;
     let capture: LogCapture;
+    let contract: ReturnType<typeof recordResponses>;
 
     beforeEach(async () => {
       await resetLoggerState();
@@ -103,10 +105,12 @@ describe('Foundation (e2e)', () => {
         bufferLogs: true,
       });
       app.useLogger(app.get(Logger));
+      contract = recordResponses(app);
       await app.init();
     });
 
     afterEach(async () => {
+      expect(checkHttpContract(contract.take())).toEqual([]);
       if (app) {
         await app.close();
       }

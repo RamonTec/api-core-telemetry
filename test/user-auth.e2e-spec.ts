@@ -9,6 +9,7 @@ import {
   type FakeKeycloak,
 } from './support/fake-keycloak.js';
 import { createLogCapture, type LogCapture } from './support/log-capture.js';
+import { checkHttpContract, recordResponses } from './support/http-contract.js';
 import { ProbeController } from './support/probe.controller.js';
 import { testConfig } from './support/test-env.js';
 
@@ -45,6 +46,7 @@ describe('User Auth (e2e)', () => {
   let fakeKeycloak: FakeKeycloak;
   let app: NestExpressApplication;
   let capture: LogCapture;
+  let contract: ReturnType<typeof recordResponses>;
 
   beforeAll(async () => {
     fakeKeycloak = await createFakeKeycloak();
@@ -81,10 +83,12 @@ describe('User Auth (e2e)', () => {
       bufferLogs: true,
     });
     app.useLogger(app.get(Logger));
+    contract = recordResponses(app);
     await app.init();
   });
 
   afterEach(async () => {
+    expect(checkHttpContract(contract.take())).toEqual([]);
     if (app) {
       await app.close();
     }

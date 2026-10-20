@@ -1,6 +1,6 @@
 ---
 id: 006-T01
-status: todo           # todo | doing | blocked | done
+status: done           # todo | doing | blocked | done
 depends_on: []
 covers: [AC-1, AC-2]
 ---
@@ -31,13 +31,13 @@ paths: { /health: { get: { security: [], … } }, /health/ready: { get: { securi
 ```
 
 ## Archivos a crear/modificar
-- [ ] `docs/contracts/openapi.yaml` (nuevo)
-- [ ] `test/support/contracts.ts` (nuevo, portado sin AsyncAPI)
-- [ ] `test/contracts/documents.spec.ts` (nuevo, solo OpenAPI); `package.json` (devDeps)
+- [x] `docs/contracts/openapi.yaml` (nuevo)
+- [x] `test/support/contracts.ts` (nuevo, portado sin AsyncAPI)
+- [x] `test/contracts/documents.spec.ts` (nuevo, solo OpenAPI); `package.json` (devDeps)
 
 ## Criterios de aceptación
-- [ ] **AC-1** — El documento contiene health, ready, `ErrorBody` y `securitySchemes.keycloak` con `x-audience` y `x-tenant-claim`.
-- [ ] **AC-2** — `@readme/openapi-parser` `validate` sin errores; romper el YAML a propósito hace fallar el test.
+- [x] **AC-1** — El documento contiene health, ready, `ErrorBody` y `securitySchemes.keycloak` con `x-audience` y `x-tenant-claim`.
+- [x] **AC-2** — `@readme/openapi-parser` `validate` sin errores; romper el YAML a propósito hace fallar el test.
 
 ## Fuera de alcance
 - —
@@ -48,3 +48,6 @@ pnpm check
 ```
 
 ## Handoff
+- Creado `docs/contracts/openapi.yaml` (OpenAPI 3.1) con endpoints de health, schemas (`ErrorBody`, `Readiness`) y scheme `keycloak` con claims (`x-audience`, `x-tenant-claim`).
+- Añadido loader y validador de esquemas en `test/support/contracts.ts` y suite de validación `test/contracts/documents.spec.ts`.
+- `pnpm check` en verde. Desbloqueados T02 y T03.

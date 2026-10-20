@@ -3,6 +3,7 @@ import { Test, type TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module.js';
 import { PrismaService } from '../src/shared/infrastructure/database/prisma.service.js';
+import { checkHttpContract, recordResponses } from './support/http-contract.js';
 import { createLogCapture, type LogCapture } from './support/log-capture.js';
 import { TEST_ENV, testConfig } from './support/test-env.js';
 
@@ -10,9 +11,14 @@ const CLOSED_PORT_DB = 'mysql://root:test@127.0.0.1:1/core_test';
 
 describe('Database (e2e)', () => {
   let app: NestExpressApplication | undefined;
+  let contract: ReturnType<typeof recordResponses> | undefined;
   let capture: LogCapture;
 
   afterEach(async () => {
+    if (contract) {
+      expect(checkHttpContract(contract.take())).toEqual([]);
+      contract = undefined;
+    }
     if (app) {
       await app.close();
       app = undefined;
@@ -37,6 +43,7 @@ describe('Database (e2e)', () => {
       moduleFixture.createNestApplication<NestExpressApplication>({
         bufferLogs: true,
       });
+    contract = recordResponses(application);
     await application.init();
     return application;
   }

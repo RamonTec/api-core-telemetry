@@ -1,6 +1,6 @@
 ---
 id: 006-T04
-status: todo           # todo | doing | blocked | done
+status: done           # todo | doing | blocked | done
 depends_on: [006-T02, 006-T03]
 covers: [AC-6]
 ---
@@ -15,11 +15,11 @@ covers: [AC-6]
 - `README.md`
 
 ## Archivos a crear/modificar
-- [ ] `docs/contracts/README.md` (nuevo)
-- [ ] `README.md` (sección "Contratos")
+- [x] `docs/contracts/README.md` (nuevo)
+- [x] `README.md` (sección "Contratos")
 
 ## Criterios de aceptación
-- [ ] **AC-6** — La guía cubre: añadir la ruta al YAML en el mismo task que la implementa, `x-required-roles`, `x-idempotent`/`x-retryable` en comandos, `ErrorBody` con `code` fijo por respuesta, semver (mayor = incompatible) e historial de versiones.
+- [x] **AC-6** — La guía cubre: añadir la ruta al YAML en el mismo task que la implementa, `x-required-roles`, `x-idempotent`/`x-retryable` en comandos, `ErrorBody` con `code` fijo por respuesta, semver (mayor = incompatible) e historial de versiones.
 
 ## Fuera de alcance
 - —
@@ -30,3 +30,6 @@ pnpm check
 ```
 
 ## Handoff
+- Creada guía `docs/contracts/README.md` con política de actualización en el mismo task, roles `x-required-roles`, idempotencia/reintentabilidad, `ErrorBody` tipado, SemVer e historial.
+- Enlazada la guía y especificación OpenAPI en `README.md` (sección "Contratos").
+- `pnpm check` en verde. Todos los tasks de spec 006 finalizados.
