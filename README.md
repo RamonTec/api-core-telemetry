@@ -5,6 +5,7 @@ Núcleo de negocio de la plataforma: tenants, usuarios, flota (vehículos, GPS, 
 
 - Producto: [docs/product/planning.md](docs/product/planning.md)
 - Flujo de trabajo SDD: [docs/sdd/WORKFLOW.md](docs/sdd/WORKFLOW.md)
+- Contratos: [docs/contracts/README.md](docs/contracts/README.md)
 - Estándares: [docs/standards/](docs/standards/)
 - Roadmap de specs: [docs/specs/ROADMAP.md](docs/specs/ROADMAP.md)
 - Reglas para agentes (Claude Code / Antigravity): [AGENTS.md](AGENTS.md)
@@ -76,3 +77,12 @@ con tres checks en paralelo:
 - Versiones: Node de [`.node-version`](.node-version) (la misma que la imagen; `test:image` lo comprueba) y pnpm de
   `packageManager` en `package.json`. Dependencias exactas del lockfile.
 - Sin secretos y con permisos de solo lectura (`permissions: contents: read`). Un push nuevo a un PR cancela la ejecución anterior.
+
+## Contratos
+
+El contrato HTTP del servicio está especificado en OpenAPI 3.1:
+- Documento OpenAPI: [`docs/contracts/openapi.yaml`](docs/contracts/openapi.yaml)
+- Guía de contratos, roles y versionado semántico: [`docs/contracts/README.md`](docs/contracts/README.md)
+
+CI valida automáticamente la coherencia del documento contra el código (`test/contracts/`), exigiendo que toda ruta expuesta esté documentada con sus roles requeridos y que las respuestas e2e cumplan el esquema definido.
+

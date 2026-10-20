@@ -1,6 +1,6 @@
 ---
 id: 006-contract-tooling
-status: approved       # draft | approved | in-progress | done
+status: done           # draft | approved | in-progress | done
 requirements: [FND-FR10]
 adrs: [PADR-001, PADR-004]
 ---
