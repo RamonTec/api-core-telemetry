@@ -6,9 +6,9 @@ spec: 005
 
 | Task | Título | Depende de | Estado |
 |------|--------|-----------|--------|
-| T01 | Ports de auditoría, reloj e ids con sus fakes | — | todo |
-| T02 | Helper runAudited con actor y tenant | T01 | todo |
-| T03 | Adaptadores (pino, reloj, UUID v7) y AuditModule global | T02 | todo |
+| T01 | Ports de auditoría, reloj e ids con sus fakes | — | done |
+| T02 | Helper runAudited con actor y tenant | T01 | done |
+| T03 | Adaptadores (pino, reloj, UUID v7) y AuditModule global | T02 | done |
 
 ## Cobertura AC → tasks
 | AC | Tasks |
@@ -22,9 +22,9 @@ spec: 005
 | AC-7 | T01, T03 |
 
 ## Checklist de cierre del spec
-- [ ] Todos los tasks en `done` con `## Handoff` relleno
-- [ ] Cada AC del spec tiene al menos un test `it('AC-n: …')` en verde
-- [ ] `pnpm check` y `pnpm test:e2e` en verde
-- [ ] Variables de entorno nuevas documentadas (README) y añadidas a `test/support/test-env.ts`
-- [ ] `spec.md` → `status: done` y fila del `ROADMAP.md` actualizada
+- [x] Todos los tasks en `done` con `## Handoff` relleno
+- [x] Cada AC del spec tiene al menos un test `it('AC-n: …')` en verde
+- [x] `pnpm check` y `pnpm test:e2e` en verde
+- [x] Variables de entorno nuevas documentadas (README) y añadidas a `test/support/test-env.ts` (sin variables nuevas)
+- [x] `spec.md` → `status: done` y fila del `ROADMAP.md` actualizada
 - [ ] PR abierto con la lista de tasks y la matriz AC → tasks

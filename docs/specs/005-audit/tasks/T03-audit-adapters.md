@@ -1,6 +1,6 @@
 ---
 id: 005-T03
-status: todo           # todo | doing | blocked | done
+status: done           # todo | doing | blocked | done
 depends_on: [005-T02]
 covers: [AC-1, AC-3, AC-6, AC-7]
 ---
@@ -26,12 +26,12 @@ export class UuidV7IdGenerator implements IdGeneratorPort   // import { v7 } fro
 ```
 
 ## Archivos a crear/modificar
-- [ ] `src/shared/infrastructure/audit/{pino-audit-log.adapter,system-clock,uuid-v7-id-generator,audit.module}.ts` (nuevos) + specs
-- [ ] `src/app.module.ts` (importa `AuditModule`); `package.json` (`pnpm add uuid@^14`)
+- [x] `src/shared/infrastructure/audit/{pino-audit-log.adapter,system-clock,uuid-v7-id-generator,audit.module}.ts` (nuevos) + specs
+- [x] `src/app.module.ts` (importa `AuditModule`); `package.json` (`pnpm add uuid@^14`)
 
 ## Criterios de aceptación
-- [ ] **AC-1/3/6** — Spec del adapter con `createLogCapture`: `context:"Audit"`, nivel según `succeeded`, campos fijos no sobrescribibles, sin `undefined`.
-- [ ] **AC-7** — `UuidV7IdGenerator.next()` cumple el formato v7 y dos ids consecutivos son crecientes.
+- [x] **AC-1/3/6** — Spec del adapter con `createLogCapture`: `context:"Audit"`, nivel según `succeeded`, campos fijos no sobrescribibles, sin `undefined`.
+- [x] **AC-7** — `UuidV7IdGenerator.next()` cumple el formato v7 y dos ids consecutivos son crecientes.
 
 ## Fuera de alcance
 - —
@@ -42,3 +42,6 @@ pnpm check
 ```
 
 ## Handoff
+- Implementados PinoAuditLogAdapter, SystemClock y UuidV7IdGenerator con cobertura unitaria e integración.
+- AuditModule registrado globalmente en AppModule proveyendo los 3 tokens de puertos.
+- Todos los ACs del spec 005 cubiertos y pnpm check en verde.

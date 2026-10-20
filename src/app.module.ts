@@ -1,6 +1,7 @@
 import { type DynamicModule, Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import type { DestinationStream } from 'pino';
+import { AuditModule } from './shared/infrastructure/audit/audit.module.js';
 import { AuthModule } from './shared/infrastructure/auth/auth.module.js';
 import type { JwtVerifier } from './shared/infrastructure/auth/jwt-verifier.js';
 import {
@@ -33,6 +34,7 @@ export class AppModule {
         configModule,
         HealthModule,
         DatabaseModule,
+        AuditModule,
         LoggingModule.forRoot(config, logStream),
         AuthModule.forRoot(config.auth, overrides),
       ],
