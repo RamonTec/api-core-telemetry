@@ -7,7 +7,7 @@ spec: 006
 | Task | Título | Depende de | Estado |
 |------|--------|-----------|--------|
 | T01 | openapi.yaml inicial, cargador y test de validez | — | done |
-| T02 | Test de rutas y roles código ↔ contrato | T01 | todo |
+| T02 | Test de rutas y roles código ↔ contrato | T01 | done |
 | T03 | Validar respuestas e2e contra el contrato | T01 | todo |
 | T04 | Guía de contratos y enlace en README | T02, T03 | todo |
 
