@@ -1,0 +1,148 @@
+openapi: 3.1.0
+info:
+  title: core-service
+  version: 0.1.0
+  summary: Business core of the telemetry platform.
+  description: |
+    core-service manages tenants, users, fleet (vehicles, GPS devices, drivers), billing and verticals.
+servers:
+  - url: http://core-service:3000
+    description: Inside the platform network (local stack)
+tags:
+  - name: health
+security:
+  - keycloak: []
+paths:
+  /health:
+    get:
+      tags: [health]
+      operationId: getHealth
+      summary: Liveness
+      description: The process is up. Does not check dependencies.
+      security: []
+      responses:
+        '200':
+          description: Alive.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    const: ok
+  /health/ready:
+    get:
+      tags: [health]
+      operationId: getReadiness
+      summary: Readiness
+      description: |
+        Whether the service can do its job. Checks dependencies such as the database.
+      security: []
+      responses:
+        '200':
+          description: Ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Readiness'
+        '503':
+          description: Not ready (a critical check failed).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Readiness'
+components:
+  securitySchemes:
+    keycloak:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Token de usuario de Keycloak (realm telemetry, client web-app). Roles: resource_access.core-service.roles y realm_access.roles (platform-operator).
+      x-audience: core-service
+      x-tenant-claim: tenant_id
+  parameters:
+    CorrelationId:
+      name: x-correlation-id
+      in: header
+      required: false
+      description: Correlation id (ADR-0002); generated when absent and echoed in the response.
+      schema:
+        type: string
+  responses:
+    ValidationError:
+      description: '`VALIDATION_ERROR`: malformed JSON, unknown fields or invalid values. `details` lists each issue.'
+      x-retryable: false
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+            properties:
+              code:
+                const: VALIDATION_ERROR
+    Unauthorized:
+      description: '`UNAUTHORIZED`: missing, invalid or expired token, or wrong issuer/audience. Get a new token.'
+      x-retryable: false
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+            properties:
+              code:
+                const: UNAUTHORIZED
+    Forbidden:
+      description: '`FORBIDDEN`: the token lacks required roles or tenant claims.'
+      x-retryable: false
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+            properties:
+              code:
+                const: FORBIDDEN
+    InternalError:
+      description: '`INTERNAL_ERROR`: unexpected error. Retry with backoff; report it if it persists.'
+      x-retryable: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+            properties:
+              code:
+                const: INTERNAL_ERROR
+  schemas:
+    Readiness:
+      type: object
+      required: [status, checks]
+      properties:
+        status:
+          enum: [ok, error]
+        checks:
+          type: object
+          description: One entry per dependency (e.g. `database`).
+          additionalProperties:
+            enum: [ok, error, down]
+    ErrorBody:
+      type: object
+      description: Error format of the platform (ADR-0002).
+      additionalProperties: false
+      required: [code, message, correlationId]
+      properties:
+        code:
+          type: string
+          description: Stable machine-readable code; branch on this, never on `message`.
+        message:
+          type: string
+        correlationId:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            required: [path, message]
+            properties:
+              path:
+                type: string
+              message:
+                type: string
