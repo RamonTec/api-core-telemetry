@@ -15,6 +15,39 @@ servicio que conoce el **mapeo** entre el negocio y Traccar (`tenant ↔ traccar
 `gps ↔ traccar_device_id`) y la **asignación** de cada GPS a un vehículo en el tiempo. Está separado de la telemetría
 a propósito: una caída de Traccar, de NATS o de telemetry-service no puede impedir gestionar tenants ni facturación.
 
+## Actores y glosario
+Fuente única de los nombres de actores; specs y código usan estos términos. Levantamiento del 2026-10-20 (borrador).
+
+**Glosario**
+- **Tenant**: cuenta cliente de la plataforma. Su **titular** es una persona jurídica (RIF) o una persona natural; los
+  datos de un tenant nunca se mezclan con los de otro.
+- **Plataforma**: nosotros, el proveedor del servicio.
+- "Operador" a secas **no se usa**: es *operador de plataforma*, *operador del tenant* o *transportista* (ver abajo).
+
+**Lado plataforma**
+| Actor | Qué hace | Login | Rol (Keycloak) |
+|-------|----------|-------|----------------|
+| Operador de plataforma | Da de alta y gestiona tenants, vendedores, planes, pagos e instalación de GPS. En el MVP es el único rol interno | Sí | `platform-operator` |
+| Vendedor | Vendedor interno: trae clientes y cobra comisión por ellos | No (MVP); es un registro | — |
+
+**Lado tenant**
+| Actor | Qué hace | Login | Rol (Keycloak) |
+|-------|----------|-------|----------------|
+| Titular de la cuenta | Responsable comercial del tenant: contrata, paga, recibe las comunicaciones de cobro. Es un usuario administrador marcado como titular | Sí | `tenant-admin` + marca de titular |
+| Administrador del tenant | Gestiona usuarios, vehículos, GPS y datos del tenant; puede haber varios | Sí | `tenant-admin` |
+| Operador del tenant | Monitorea la flota, gestiona viajes y órdenes | Sí | `tenant-operator` |
+| Solo lectura | Consulta mapa y reportes | Sí | `tenant-viewer` |
+| Conductor | Maneja un vehículo; es un registro de la flota, con usuario opcional | Opcional | `driver` |
+
+**Fuera de los tenants (por definir en su fase)**
+| Actor | Nota |
+|-------|------|
+| Transportista | Quien hace viajes u órdenes para otro tenant (fase 7). Cruza tenants: necesita un diseño explícito que no rompa el aislamiento |
+| Destinatario | Recibe un envío; sin login (fase 7) |
+
+**Fuera del modelo**: revendedores o distribuidores con clientes propios (descartado el 2026-10-20: la venta se hace con
+vendedores internos y publicidad).
+
 ## Reglas comunes (aplican a todas las fases)
 - **Hexagonal por feature**: `domain` ← `application` ← `infrastructure`, forzado por lint. El dominio no conoce
   Prisma, NestJS ni Traccar.
@@ -37,7 +70,7 @@ Cada fase numera sus requisitos con el prefijo de su módulo para no renumerar a
 | Módulo | Qué cubre | Depende de |
 |--------|-----------|------------|
 | **foundation** (transversal) | Config, logging, errores, health, OpenAPI base, CI, imagen; autenticación de usuarios (JWT), actor + tenant + rol en cada petición; MySQL + Prisma + aislamiento por tenant | — |
-| **tenancy** | Alta de tenant por el operador, su group de Traccar, primer administrador, estados del tenant | foundation |
+| **tenancy** | Alta de tenant por autoregistro o por el operador de plataforma (con vendedor), titular persona natural o jurídica, primer administrador en Keycloak, su group de Traccar, estados del tenant, vendedores | foundation |
 | **fleet** | Vehículos; registro de GPS por IMEI (traccar-adapter); asignación GPS↔vehículo con historial; baja/reactivación; conductores | tenancy |
 | **identity** | Gestión de usuarios del tenant y sus roles (admin, operador, solo lectura, conductor), alineados con Keycloak | tenancy |
 | **billing** | Planes (precio por vehículo, verticales), suscripción mensual, cálculo de periodos, pagos manuales, impago → gracia → solo lectura | fleet (vehículos activos) |
@@ -49,19 +82,19 @@ Cada fase numera sus requisitos con el prefijo de su módulo para no renumerar a
 | Fase | Módulo | Resultado al cerrarla | Ideas ya capturadas (se refinan al llegar) |
 |------|--------|-----------------------|--------------------------------------------|
 | **0** | foundation | Servicio vacío pero desplegable: CI, imagen, auth de usuarios, BD con aislamiento probado | Validar el JWT reenviado por api-gateway (defensa en profundidad); tenant en Keycloak como group + claim `tenant_id`; operador de plataforma sin tenant |
-| **1** | tenancy | El operador da de alta un tenant y existe su group en Traccar y su primer admin | Alta pendiente → group en Traccar → activo, con reintento; estados `activo → gracia → solo lectura → suspendido`; suspender deshabilita sus GPS |
-| **2** | fleet | Un GPS registrado y asignado a un vehículo reporta en Traccar y llega a NATS (**primer flujo de punta a punta**) | IMEI único entre activos; 1 GPS activo por vehículo, reasignable con vigencia; baja → `disable`; conductor con usuario opcional; ¿GPS sin vehículo (inventario)? |
+| **1** | tenancy | Un tenant existe (por autoregistro o alta del operador), su titular entra con Keycloak y tiene su group en Traccar | Ver [phases/01-tenancy.md](phases/01-tenancy.md) |
+| **2** | fleet | Un GPS registrado y asignado a un vehículo reporta en Traccar y llega a NATS (**primer flujo de punta a punta**) | IMEI único entre activos; 1 GPS activo por vehículo, reasignable con vigencia; baja → `disable`; conductor sin login por defecto (usuario opcional); GPS **provisto por la plataforma** (lo registra e instala el operador de plataforma y lo asigna al vehículo) o **traído por el cliente**; ¿GPS sin vehículo (inventario)?; ¿sedes del tenant? |
 | **3** | identity | El admin gestiona los usuarios de su tenant | Usuarios creados vía Admin API de Keycloak; un tenant por usuario |
-| **4** | billing | Cada tenant tiene plan y suscripción; impago lo pasa a solo lectura | Cobro por vehículo activo/mes; pagos manuales; pasarela detrás de un port después; días de gracia y moneda por definir |
+| **4** | billing | Cada tenant tiene plan y suscripción; cada pago validado genera su factura digital enviada al cliente; impago lo pasa a solo lectura | Cobro por vehículo activo/mes; **pago manual**: el cliente sube el comprobante y el operador de plataforma lo valida → **factura digital** enviada por correo (¿imprenta digital autorizada por el SENIAT?; almacenamiento de comprobantes); pasarela detrás de un port después; **solo lectura y GPS deshabilitados** a los **5 días** de impago (mecanismo de solo lectura de la fase 1); sustituye el adaptador "sin deuda" de `OutstandingBalancePort`; moneda por definir; un tenant cerrado conserva su deuda; **comisión del vendedor** sobre pagos del tenant (base y límite por definir) |
 | **5** | telemetry-mapping | telemetry-service sabe a qué tenant y vehículo pertenece cada posición | Recomendado: core-service publica eventos de dominio en NATS y telemetry-service guarda su copia |
 | **6** | travels | Viajes v1 operativos | Recorrido real consultado a telemetry-service |
-| **7** | orders | Órdenes v1 operativas | Dueño de las geocercas por decidir (afecta a la confirmación automática) |
+| **7** | orders | Órdenes v1 operativas | Dueño de las geocercas por decidir (afecta a la confirmación automática); ¿órdenes entre tenants (empresa ↔ transportista)? rompe el aislamiento simple; ¿app nativa o PWA para conductores/transportistas? |
 
 **Otros servicios en paralelo**: telemetry-service puede empezar al cerrar la fase 2 (ya hay posiciones de GPS reales
 de un tenant) y su diseño cierra la fase 5; realtime-gateway después; api-gateway cuando haya frontend.
 
 ## Fuera de alcance de core-service
 Guardar posiciones o eventos y evaluar alertas (telemetry-service), WebSockets (realtime-gateway), enrutado y rate
-limit (api-gateway), hablar con Traccar directamente (traccar-adapter). Versiones posteriores: pasarela de pagos,
-alta autoservicio, facturas fiscales, app móvil, prueba de entrega, rutas multi-parada, viajes con paradas/pasajeros
+limit (api-gateway), hablar con Traccar directamente (traccar-adapter), pantallas de login, recuperación de
+contraseña y verificación de correo (Keycloak). Versiones posteriores: pasarela de pagos, app móvil, prueba de entrega, rutas multi-parada, viajes con paradas/pasajeros
 o recurrentes.
