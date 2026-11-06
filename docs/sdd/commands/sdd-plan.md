@@ -11,7 +11,8 @@ Precondición: `spec.md` tiene `status: approved` y sin preguntas abiertas bloqu
 
 Lee únicamente:
 1. `docs/specs/<ARG>/spec.md`
-2. `docs/standards/architecture.md`
+2. `docs/standards/architecture.md` y, si el spec expone endpoints o toca auth/datos de tenant,
+   `docs/standards/security.md`
 3. `docs/specs/_templates/design.md`
 4. Los archivos existentes que el diseño vaya a modificar (lista primero con `ls`/`grep`, abre solo los necesarios).
 
@@ -19,6 +20,7 @@ Crea `docs/specs/<ARG>/design.md`:
 - Tabla de componentes con **rutas exactas** según el layout del estándar.
 - Firmas TypeScript exactas de ports, use cases (input/output) y errores — los tasks copiarán de aquí.
 - Cada AC del spec debe mapear a algún componente.
+- Si hay endpoints: matriz `Endpoint | Roles` (y justificación de cada `@Public`) según `security.md`.
 - Decisiones transversales → propón un ADR en `docs/decisions/` en vez de enterrarlas aquí.
 - Máximo ~1 página.
 

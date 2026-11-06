@@ -21,6 +21,8 @@
 - Sin red, reloj, ids ni aleatoriedad reales en unit tests (inyectar `ClockPort`, `IdGeneratorPort`).
 - **Aislamiento por tenant**: todo repositorio de un modelo con `tenantId` tiene un test que crea datos de dos tenants y
   comprueba que cada actor solo ve y modifica los suyos (incluido actualizar/borrar por id de otro tenant).
+- **Seguridad**: todo endpoint protegido tiene los 4 tests de `security.md` (401, 403, 400 por campo desconocido, 404
+  por recurso de otro tenant).
 - Tests de BD: cada suite usa su propio esquema o limpia sus tablas; nunca dependen del orden ni de datos de otra suite.
 - Cobertura objetivo: `domain` + `application` ≥ 90 % líneas. Infra: happy path + cada traducción de error.
 
