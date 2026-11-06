@@ -8,6 +8,9 @@
 detallado de cada fase (requisitos, reglas, secuencias, preguntas) se escribe **al empezar esa fase**, en
 `docs/product/phases/NN-<modulo>.md`, y de él salen sus specs. No se diseña una fase antes de cerrar la anterior.
 
+**MVP:** fases 0–5 (telemetría + cobro manual). Viajes, órdenes y la conexión con terceros quedan después; alcance,
+entidades y requisitos de alto nivel en [mvp.md](mvp.md).
+
 ## Propósito
 core-service es el **núcleo de negocio** de la plataforma: dueño de los tenants (empresas cliente), sus usuarios, su
 flota (vehículos, GPS, conductores), su facturación y la lógica de las verticales (viajes y órdenes). Es el único
@@ -37,7 +40,7 @@ Fuente única de los nombres de actores; specs y código usan estos términos. L
 | Administrador del tenant | Gestiona usuarios, vehículos, GPS y datos del tenant; puede haber varios | Sí | `tenant-admin` |
 | Operador del tenant | Monitorea la flota, gestiona viajes y órdenes | Sí | `tenant-operator` |
 | Solo lectura | Consulta mapa y reportes | Sí | `tenant-viewer` |
-| Conductor | Maneja un vehículo; es un registro de la flota, con usuario opcional | Opcional | `driver` |
+| Conductor | Maneja un vehículo; es un registro de la flota, con usuario opcional para entrar a la PWA (su unidad, su puntaje, botón de pánico) | Opcional | `driver` |
 
 **Fuera de los tenants (por definir en su fase)**
 | Actor | Nota |
@@ -83,12 +86,12 @@ Cada fase numera sus requisitos con el prefijo de su módulo para no renumerar a
 |------|--------|-----------------------|--------------------------------------------|
 | **0** | foundation | Servicio vacío pero desplegable: CI, imagen, auth de usuarios, BD con aislamiento probado | Validar el JWT reenviado por api-gateway (defensa en profundidad); tenant en Keycloak como group + claim `tenant_id`; operador de plataforma sin tenant |
 | **1** | tenancy | Un tenant existe (por autoregistro o alta del operador), su titular entra con Keycloak y tiene su group en Traccar | Ver [phases/01-tenancy.md](phases/01-tenancy.md) |
-| **2** | fleet | Un GPS registrado y asignado a un vehículo reporta en Traccar y llega a NATS (**primer flujo de punta a punta**) | IMEI único entre activos; 1 GPS activo por vehículo, reasignable con vigencia; baja → `disable`; conductor sin login por defecto (usuario opcional); GPS **provisto por la plataforma** (lo registra e instala el operador de plataforma y lo asigna al vehículo) o **traído por el cliente**; ¿GPS sin vehículo (inventario)?; ¿sedes del tenant? |
+| **2** | fleet | Un GPS registrado y asignado a un vehículo reporta en Traccar y llega a NATS (**primer flujo de punta a punta**) | IMEI único entre activos; 1 GPS activo por vehículo, reasignable con vigencia; baja → `disable`; conductor sin login por defecto (usuario opcional); asignación conductor↔vehículo siempre por el administrador (sin jornadas); horario laboral por vehículo; vencimientos de licencia, seguro y revisión; planes de mantenimiento ([mvp.md](mvp.md)); GPS **provisto por la plataforma** (lo registra e instala el operador de plataforma y lo asigna al vehículo) o **traído por el cliente**; ¿GPS sin vehículo (inventario)?; ¿sedes del tenant? |
 | **3** | identity | El admin gestiona los usuarios de su tenant | Usuarios creados vía Admin API de Keycloak; un tenant por usuario |
 | **4** | billing | Cada tenant tiene plan y suscripción; cada pago validado genera su factura digital enviada al cliente; impago lo pasa a solo lectura | Cobro por vehículo activo/mes; **pago manual**: el cliente sube el comprobante y el operador de plataforma lo valida → **factura digital** enviada por correo (¿imprenta digital autorizada por el SENIAT?; almacenamiento de comprobantes); pasarela detrás de un port después; **solo lectura y GPS deshabilitados** a los **5 días** de impago (mecanismo de solo lectura de la fase 1); sustituye el adaptador "sin deuda" de `OutstandingBalancePort`; moneda por definir; un tenant cerrado conserva su deuda; **comisión del vendedor** sobre pagos del tenant (base y límite por definir) |
 | **5** | telemetry-mapping | telemetry-service sabe a qué tenant y vehículo pertenece cada posición | Recomendado: core-service publica eventos de dominio en NATS y telemetry-service guarda su copia |
-| **6** | travels | Viajes v1 operativos | Recorrido real consultado a telemetry-service |
-| **7** | orders | Órdenes v1 operativas | Dueño de las geocercas por decidir (afecta a la confirmación automática); ¿órdenes entre tenants (empresa ↔ transportista)? rompe el aislamiento simple; ¿app nativa o PWA para conductores/transportistas? |
+| **6** | travels (post-MVP) | Viajes v1 operativos | Recorrido real consultado a telemetry-service |
+| **7** | orders (post-MVP) | Órdenes v1 operativas | Dueño de las geocercas por decidir (afecta a la confirmación automática); ¿órdenes entre tenants (empresa ↔ transportista)? rompe el aislamiento simple; ¿app nativa o PWA para conductores/transportistas? |
 
 **Otros servicios en paralelo**: telemetry-service puede empezar al cerrar la fase 2 (ya hay posiciones de GPS reales
 de un tenant) y su diseño cierra la fase 5; realtime-gateway después; api-gateway cuando haya frontend.
