@@ -26,7 +26,7 @@ commit). `/sdd-status` para ver el siguiente task.
   (pueden incluir archivos de `../traccar-adapter/` como referencia para portar).
 - No leas `docs/product/` completo; los specs citan los IDs (`FND-FR3`, `TEN-FR1`…) que necesitas.
 - Si te falta contexto, **para** y reporta qué falta; no explores el repo a ciegas.
-- Estándares: carga solo el que aplique (`docs/standards/{architecture,coding,testing,git}.md`).
+- Estándares: carga solo el que aplique (`docs/standards/{architecture,coding,testing,git,security}.md`).
 - Decisiones de plataforma (PADR): `../telemetry-infra/docs/platform/decisions/`.
 
 ## Comandos de proyecto
